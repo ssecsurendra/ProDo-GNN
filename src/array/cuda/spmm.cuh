@@ -16,7 +16,7 @@
 #include "bf16.cuh"
 #include "fp16.cuh"
 #include "macro.cuh"
-
+#include <iostream>
 namespace dgl {
 
 using namespace cuda;
@@ -210,6 +210,7 @@ void CusparseCsrmm2(
   const int nnz = csr.indices->shape[0];
   const DType alpha = 1.0;
   const DType beta = 0.0;
+  static float spmm_time = 0.0;
   // device
   auto device = runtime::DeviceAPI::Get(ctx);
   auto* thr_entry = runtime::CUDAThreadEntry::ThreadLocal();
@@ -248,10 +249,23 @@ void CusparseCsrmm2(
       thr_entry->cusparse_handle, transA, transB, &alpha, matA, matB, &beta,
       matC, dtype, CUSPARSE_SPMM_CSR_ALG2, &workspace_size));
   void* workspace = device->AllocWorkspace(ctx, workspace_size);
+  cudaEvent_t start, stop;
+  cudaEventCreate(&start);
+  cudaEventCreate(&stop);
+  cudaEventRecord(start);
   CUSPARSE_CALL(cusparseSpMM(
       thr_entry->cusparse_handle, transA, transB, &alpha, matA, matB, &beta,
       matC, dtype, CUSPARSE_SPMM_CSR_ALG2, workspace));
   device->FreeWorkspace(ctx, workspace);
+
+  cudaEventRecord(stop); // Record stop event after your CUDA operation
+  cudaEventSynchronize(stop); // Synchronize on stop event to ensure it has completed
+  float milliseconds = 0;
+  cudaEventElapsedTime(&milliseconds, start, stop);
+  spmm_time += milliseconds/1000;
+  printf("spmm time %.6f\n",spmm_time);
+  cudaEventDestroy(start);
+  cudaEventDestroy(stop);
 
   CUSPARSE_CALL(cusparseDestroySpMat(matA));
   CUSPARSE_CALL(cusparseDestroyDnMat(matB));

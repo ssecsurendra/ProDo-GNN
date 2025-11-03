@@ -11,6 +11,7 @@
 
 #include <cub/cub.cuh>
 #include <numeric>
+#include <iostream>
 
 #include "../../array/cuda/atomic.cuh"
 #include "../../runtime/cuda/cuda_common.h"
@@ -19,7 +20,7 @@
 using namespace dgl::cuda;
 using namespace dgl::aten::cuda;
 using TensorDispatcher = dgl::runtime::TensorDispatcher;
-
+float sampling_time = 0.0;
 namespace dgl {
 namespace aten {
 namespace impl {
@@ -112,6 +113,7 @@ __global__ void _CSRRowWiseSampleDegreeReplaceKernel(
  * @param out_cols The columns of the output COO (output).
  * @param out_idxs The data array of the output COO (output).
  */
+//version-3
 template <typename IdType, int TILE_SIZE>
 __global__ void _CSRRowWiseSampleUniformKernel(
     const uint64_t rand_seed, const int64_t num_picks, const int64_t num_rows,
@@ -144,33 +146,78 @@ __global__ void _CSRRowWiseSampleUniformKernel(
         out_idxs[out_row_start + idx] = data ? data[in_idx] : in_idx;
       }
     } else {
-      // generate permutation list via reservoir algorithm
+      // just copy num_picks staring neighbors.
       for (int idx = threadIdx.x; idx < num_picks; idx += BLOCK_SIZE) {
-        out_idxs[out_row_start + idx] = idx;
-      }
-      __syncthreads();
-
-      for (int idx = num_picks + threadIdx.x; idx < deg; idx += BLOCK_SIZE) {
-        const int num = curand(&rng) % (idx + 1);
-        if (num < num_picks) {
-          // use max so as to achieve the replacement order the serial
-          // algorithm would have
-          AtomicMax(out_idxs + out_row_start + num, idx);
-        }
-      }
-      __syncthreads();
-
-      // copy permutation over
-      for (int idx = threadIdx.x; idx < num_picks; idx += BLOCK_SIZE) {
-        const IdType perm_idx = out_idxs[out_row_start + idx] + in_row_start;
+        const IdType in_idx = in_row_start + idx;
+        //printf("in right path\n");
         out_rows[out_row_start + idx] = row;
-        out_cols[out_row_start + idx] = in_index[perm_idx];
-        out_idxs[out_row_start + idx] = data ? data[perm_idx] : perm_idx;
+        out_cols[out_row_start + idx] = in_index[in_idx];
+        out_idxs[out_row_start + idx] = data ? data[in_idx] : in_idx;
       }
-    }
+      } 
     out_row += 1;
   }
 }
+//version-1
+// template <typename IdType, int TILE_SIZE>
+// __global__ void _CSRRowWiseSampleUniformKernel(
+//     const uint64_t rand_seed, const int64_t num_picks, const int64_t num_rows,
+//     const IdType* const in_rows, const IdType* const in_ptr,
+//     const IdType* const in_index, const IdType* const data,
+//     const IdType* const out_ptr, IdType* const out_rows, IdType* const out_cols,
+//     IdType* const out_idxs) {
+//   // we assign one warp per row
+//   assert(blockDim.x == BLOCK_SIZE);
+//
+//   int64_t out_row = blockIdx.x * TILE_SIZE;
+//   const int64_t last_row =
+//       min(static_cast<int64_t>(blockIdx.x + 1) * TILE_SIZE, num_rows);
+//
+//   curandStatePhilox4_32_10_t rng;
+//   curand_init(rand_seed * gridDim.x + blockIdx.x, threadIdx.x, 0, &rng);
+//
+//   while (out_row < last_row) {
+//     const int64_t row = in_rows[out_row];
+//     const int64_t in_row_start = in_ptr[row];
+//     const int64_t deg = in_ptr[row + 1] - in_row_start;
+//     const int64_t out_row_start = out_ptr[out_row];
+//
+//     if (deg <= num_picks) {
+//       // just copy row when there is not enough nodes to sample.
+//       for (int idx = threadIdx.x; idx < deg; idx += BLOCK_SIZE) {
+//         const IdType in_idx = in_row_start + idx;
+//         out_rows[out_row_start + idx] = row;
+//         out_cols[out_row_start + idx] = in_index[in_idx];
+//         out_idxs[out_row_start + idx] = data ? data[in_idx] : in_idx;
+//       }
+//     } else {
+//       // generate permutation list via reservoir algorithm
+//       for (int idx = threadIdx.x; idx < num_picks; idx += BLOCK_SIZE) {
+//         out_idxs[out_row_start + idx] = idx;
+//       }
+//       __syncthreads();
+//
+//       for (int idx = num_picks + threadIdx.x; idx < deg; idx += BLOCK_SIZE) {
+//         const int num = curand(&rng) % (idx + 1);
+//         if (num < num_picks) {
+//           // use max so as to achieve the replacement order the serial
+//           // algorithm would have
+//           AtomicMax(out_idxs + out_row_start + num, idx);
+//         }
+//       }
+//       __syncthreads();
+//
+//       // copy permutation over
+//       for (int idx = threadIdx.x; idx < num_picks; idx += BLOCK_SIZE) {
+//         const IdType perm_idx = out_idxs[out_row_start + idx] + in_row_start;
+//         out_rows[out_row_start + idx] = row;
+//         out_cols[out_row_start + idx] = in_index[perm_idx];
+//         out_idxs[out_row_start + idx] = data ? data[perm_idx] : perm_idx;
+//       }
+//     }
+//     out_row += 1;
+//   }
+// }
 
 /**
  * @brief Perform row-wise uniform sampling on a CSR matrix,
@@ -257,6 +304,32 @@ COOMatrix _CSRRowWiseSamplingUniform(
   const IdType* data = CSRHasData(mat)
                            ? static_cast<IdType*>(GetDevicePointer(mat.data))
                            : nullptr;
+  // int64_t num_edges = mat.indices->shape[0];
+  // std::cout << "Number of column indices = " << num_edges << std::endl;
+  // int print_count = 20;  // first 10 entries
+  // std::vector<IdType> host_cols(print_count);
+  // cudaMemcpy(host_cols.data(), in_cols,
+  //            print_count * sizeof(IdType),
+  //            cudaMemcpyDeviceToHost);
+  // for (int i = 0; i < print_count; i++) {
+  //     std::cout << host_cols[i] << " ";
+  // }
+  // std::cout << std::endl;
+
+
+  // for (int i = 0; i < print_count; i++) {
+  //     std::cout << "in_cols[" << i << "] = " << host_cols[i] << std::endl;
+  // }
+  // Copy device → host
+  // cudaMemcpy(host_cols.data(), in_cols,
+  //            num_edges * sizeof(IdType),
+  //            cudaMemcpyDeviceToHost);
+  //
+  // // Print
+  // for (int i = 0; i < num_edges; i++) {
+  //     std::cout << host_cols[i] << " ";
+  // }
+  // std::cout << std::endl;
 
   // compute degree
   IdType* out_deg = static_cast<IdType*>(
@@ -321,10 +394,25 @@ COOMatrix _CSRRowWiseSamplingUniform(
   } else {  // without replacement
     const dim3 block(BLOCK_SIZE);
     const dim3 grid((num_rows + TILE_SIZE - 1) / TILE_SIZE);
+    cudaEvent_t start,stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+    cudaEventRecord(start);
     CUDA_KERNEL_CALL(
         (_CSRRowWiseSampleUniformKernel<IdType, TILE_SIZE>), grid, block, 0,
         stream, random_seed, num_picks, num_rows, slice_rows, in_ptr, in_cols,
         data, out_ptr, out_rows, out_cols, out_idxs);
+    cudaEventRecord(stop);
+    cudaEventSynchronize(stop);
+    float milliseconds = 0;
+    cudaEventElapsedTime(&milliseconds, start, stop);
+    sampling_time += milliseconds/1000;
+    //milliseconds = milliseconds/1000;
+    //printf("cuda sampling time %.6f\n",milliseconds/1000);
+
+    printf("cuda sampling time %.6f\n", sampling_time);
+    cudaEventDestroy(start);
+    cudaEventDestroy(stop);
   }
   device->FreeWorkspace(ctx, out_ptr);
 

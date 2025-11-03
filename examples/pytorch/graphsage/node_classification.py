@@ -167,7 +167,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--mode",
-        default="mixed",
+        default="puregpu",
         choices=["cpu", "mixed", "puregpu"],
         help="Training mode. 'cpu' for CPU training, 'mixed' for CPU-GPU mixed training, "
         "'puregpu' for pure-GPU training.",
