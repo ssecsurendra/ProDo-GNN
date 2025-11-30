@@ -6,10 +6,10 @@ dataset=$1
 #batch_size = $3
 epoch=$2
 batch_sizes=(1024 2048 4096 8192 16384 32768 65536)
-# batch_sizes=(4096 8192 16384 32768 65536)
+# batch_sizes=(1024)
 # batch_sizes=(8192)
+# fanouts=(20)
 fanouts=(20 15 10)
-# fanouts=(10 15 20)
 for fanout in "${fanouts[@]}"; do
   # Loop through each batch size
   for batch_size in "${batch_sizes[@]}"; do
@@ -24,12 +24,12 @@ for fanout in "${fanouts[@]}"; do
     # else
     #   output=$(python3 node_classification1.py --dataset=$1 --batch_size=$batch_size --mode=puregpu --fanout=$fanout,$fanout,$fanout --epoch=$2 --method=$3)
     # fi
-    output=$(python3 node_classification_version3_test.py --dataset=$1 --batch_size=$batch_size --mode=puregpu --fanout=$fanout,$fanout,$fanout --epoch=$2)
+    output=$(python3 node_classification_dissimilarity_cosine_eigenvector_centrality.py --dataset=$1 --batch_size=$batch_size --mode=puregpu --fanout=$fanout,$fanout,$fanout --epoch=$2)
     #output=$(python3 node_classification1.py --dataset=$1 --batch_size=$batch_size --mode=puregpu --fanout=$fanout,$fanout,$fanout --epoch=$2)
     #output=$(python3 node_classification1.py --dataset=$1 --batch_size=$batch_size --mode=puregpu --fanout=$fanout,$fanout,$fanout --epoch=$2 --method=$3)
     #output=$(python3 node_classification_yelp_surendra.py --dataset=$1 --batch_size=$batch_size --mode=puregpu --fanout=$fanout,$fanout,$fanout --epoch=$2 --method=$3)
     #filename="SPMM_time_surendra/$1_F${fanout}_B${batch_size}_puregpu_$2.txt"
-    filename="time_centrality_HIPC/test/$1_F${fanout}_B${batch_size}_puregpu_E$2.txt"
+    filename="time_centrality_HIPC/dissimilarity_eigen/training_80per/$1_F${fanout}_B${batch_size}_puregpu_E$2.txt"
     #filename="epoch1_time_surendra/$1_F${fanout}_B${batch_size}_puregpu_$2.txt"
     #echo "Dataset = $1" > $filename
     echo "Dataset = $1, batch_size = $batch_size" > $filename

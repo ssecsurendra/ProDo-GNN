@@ -5,13 +5,7 @@ import dgl
 import time
 import os
 import torch as th
-#import pymetis
-#import gc
-from scipy.io import mmread
-import os
-from tqdm import tqdm
 import cupy as cp
-import psutil
 import argparse
 os.environ["DGLBACKEND"] = "pytorch"
 import torch.nn.functional as F
@@ -20,24 +14,11 @@ import math
 import copy
 import random
 import dgl.data
-# from . import backend as F, utils
+import networkx as nx
 from dgl import AddSelfLoop
 from dgl.data import AsNodePredDataset
 from ogb.nodeproppred import DglNodePropPredDataset
 from dgl.data import CiteseerGraphDataset, CoraGraphDataset, PubmedGraphDataset, WisconsinDataset, FlickrDataset, RedditDataset, YelpDataset
-
-# CUDA kernel for degree centrality
-degree_kernel = cp.RawKernel(r'''
-extern "C" __global__
-void degree_centrality(const int* row_ptr, float* centrality, int num_nodes) {
-    int tid = blockDim.x * blockIdx.x + threadIdx.x;
-    //printf("Launching kernel on GPU...\n");
-    if (tid < num_nodes) {
-        int degree = row_ptr[tid + 1] - row_ptr[tid];
-        centrality[tid] = (float)degree / (num_nodes - 1);
-    }
-}
-''', 'degree_centrality')
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -46,20 +27,8 @@ if __name__ == "__main__":
         type=str,
         default="ogbn-arxiv",
     )
-    # parser.add_argument(
-    #     "--num_clusters",
-    #     type=int,
-    #     default=20,
-    #     help="Number of clusters",
-    # )
-    # parser.add_argument(
-    #     "--dt",
-    #     type=str,
-    #     default="float",
-    #     help="data type (float, bfloat16)",
-    # )
     args = parser.parse_args()
-    print(f"Training with DGL built-in GraphConv module.")
+    print(f"Calculating Eigenvector Centrality for {args.dataset}.")
 
     # Load and preprocess dataset
     try:
@@ -98,16 +67,9 @@ if __name__ == "__main__":
         elif args.dataset == "igb-small":
             load_path = './dataset/igb_small.dgl'
             data, _ = dgl.load_graphs(load_path)
-
         elif args.dataset == "wiki":
             load_path = './dataset/wikidata5M/wikidata5m_dgl_graph.bin'
             data, _ = dgl.load_graphs(load_path)
-        elif args.dataset == "igb-small":
-            load_path = './dataset/igb_small.dgl'
-            data, _ = dgl.load_graphs(load_path)
-        elif args.dataset == "amazon_products":
-            load_path = './dataset/amazon_products.dgl'
-            data, _ = dgl.load_graphs(load_path)       
         else:
             raise ValueError("Unknown dataset: {}".format(args.dataset))
     except Exception as e:
@@ -115,58 +77,59 @@ if __name__ == "__main__":
         sys.exit(1)
 
     G = data[0]
-        # ---------------------- DGL PREPROCESS -----------------------------------#
     total_start = time.time()
-    # ensure undirected
-    #G = dgl.to_bidirected(G, copy_ndata=True)
-    row_ptr = np.array(G.adj_tensors('csr')[0])
-    col_idx = np.array(G.adj_tensors('csr')[1])
-    row_ptr = cp.asarray(row_ptr, dtype=cp.int32)
-    col_idx = cp.asarray(col_idx, dtype=cp.int32)
-    num_nodes = row_ptr.size - 1
 
-    # Allocate output
-    centrality = cp.zeros(num_nodes, dtype=cp.float32)
+    # Calculate Eigenvector Centrality
+    # Ensure graph is on CPU for eigenvector_centrality if it's not already
+    if G.device.type == 'cuda':
+        G = G.to('cpu')
+    
+    # Manually construct a NetworkX simple graph
+    nx_graph = nx.Graph()
+    nx_graph.add_nodes_from(range(G.num_nodes()))
+    u, v = G.edges()
+    for i in range(len(u)):
+        nx_graph.add_edge(u[i].item(), v[i].item())
+    
+    # Calculate eigenvector centrality using NetworkX
+    eigen_centrality_dict = nx.eigenvector_centrality(nx_graph)
+    
+    # Convert the dictionary to a NumPy array, ensuring order by node ID
+    eigen_centrality_np = np.array([eigen_centrality_dict[i] for i in range(G.num_nodes())])
 
-    # Kernel launch configuration
-    threads_per_block = 256
-    blocks = (num_nodes + threads_per_block - 1) // threads_per_block
+    num_nodes = G.num_nodes()
+    
+    # Get row_ptr and col_idx for sorting neighbors
+    # Ensure these are on CPU if the graph was moved there
+    row_ptr = G.adj_tensors('csr')[0].numpy()
+    col_idx = G.adj_tensors('csr')[1].numpy()
 
-    # Launch kernel
-    degree_kernel((blocks,), (threads_per_block,), 
-                  (row_ptr, centrality, num_nodes))
+    # Allocate output for sorted column indices
+    sorted_col_idx = np.empty_like(col_idx)
 
-    cp.cuda.Device(0).synchronize()
-    # Allocate output
-    sorted_col_idx = cp.empty_like(col_idx)
-
-    # Sort neighbors of each node
-    sorting_start = time.time()
+    # Sort neighbors of each node by descending eigenvector centrality
     for u in range(num_nodes):
         start, end = row_ptr[u], row_ptr[u+1]
         neighbors = col_idx[start:end]
 
         if neighbors.size > 0:
-            # Sort neighbors by descending degree centrality
-            order = cp.argsort(-centrality[neighbors])
+            # Sort neighbors by descending eigenvector centrality
+            order = np.argsort(-eigen_centrality_np[neighbors])
             sorted_col_idx[start:end] = neighbors[order]
-    sorting_end = time.time()
-    print("sorting time", sorting_end-sorting_start, "Seconds")
 
     # --- ensure output folder exists ---
-    out_dir = "degree-centrality"
+    out_dir = "eigenvector-centrality" # New directory for eigenvector centrality
     os.makedirs(out_dir, exist_ok=True)
 
     # --- save with dataset name inside folder ---
-    # filename = os.path.join(out_dir, f"{args.dataset}_degree-centrality.txt")
-    filename1 = (f"{args.dataset}_sorted-col-index.txt")
-    filename2 = (f"{args.dataset}_degree-centrality.txt")
-    cp.savetxt(filename2, centrality.get(), fmt="%.10f")
-    cp.savetxt(filename1, sorted_col_idx.get(), fmt="%d")
-    print(f"✅ Degree centrality saved to {filename2}")
-    print(f"✅ sorted column-index saved to {filename1}")
-    #print("Degree centrality:\n", centrality)
+    filename_centrality = os.path.join(out_dir, f"{args.dataset}_eigen-centrality.txt")
+    filename_sorted_col_idx = os.path.join(out_dir, f"{args.dataset}_sorted-col-index.txt")
+    
+    np.savetxt(filename_centrality, eigen_centrality_np, fmt="%.10f")
+    np.savetxt(filename_sorted_col_idx, sorted_col_idx, fmt="%d")
+    
+    print(f"✅ Eigenvector centrality saved to {filename_centrality}")
+    print(f"✅ Sorted column-index saved to {filename_sorted_col_idx}")
+    
     total_end = time.time()
     print("Total time", total_end-total_start, "Seconds")
-    
-         

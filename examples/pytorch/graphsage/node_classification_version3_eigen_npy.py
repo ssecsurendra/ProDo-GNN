@@ -376,18 +376,18 @@ if __name__ == "__main__":
         dataset = FlickrDataset()
     elif args.dataset == "reddit":
         dataset = RedditDataset()
-        degree_file = 'reddit_degree-centrality.txt'
-        sortedcol_file = 'reddit_degree_sorted-col-index.txt'
+        degree_file = 'reddit_eigen-centrality.txt'
+        sortedcol_file = 'reddit_eigen_sorted-col-index.txt'
     elif args.dataset == "yelp":
         dataset = YelpDataset()
     elif args.dataset == "ogbn-products":
         dataset = AsNodePredDataset(DglNodePropPredDataset("ogbn-products"))
-        degree_file = 'ogbn-products_degree-centrality.txt'
-        sortedcol_file = 'ogbn-products_sorted-col-index.txt'
+        degree_file = 'eigenvector-centrality-binary/ogbn-products_eigen-centrality.npy'
+        sortedcol_file = 'eigenvector-centrality-binary/ogbn-products_eigen_sorted-col-index.npy'
     elif args.dataset == "ogbn-arxiv":
         dataset = AsNodePredDataset(DglNodePropPredDataset("ogbn-arxiv"))
-        degree_file = 'ogbn-arxiv_degree-centrality.txt'
-        sortedcol_file = 'ogbn-arxiv_sorted-col-index.txt'
+        degree_file = 'ogbn-arxiv_eigen-centrality.txt'
+        sortedcol_file = 'ogbn-arxiv_eigen_sorted-col-index.txt'
     elif args.dataset == "amazon_products":
         load_path = '/data/Dataset/gnn_dataset/amazon_products.dgl'
         dataset, _ = dgl.load_graphs(load_path)
@@ -406,8 +406,8 @@ if __name__ == "__main__":
     elif args.dataset == "igb-small":
         load_path = './dataset/igb_small.dgl'
         dataset, _ = dgl.load_graphs(load_path)
-        degree_file = 'igb-small_degree-centrality.txt'
-        sortedcol_file = 'igb-small_sorted-col-index.txt'
+        degree_file = 'igb-small_eigen-centrality.txt'
+        sortedcol_file = 'igb-small_eigen_sorted-col-index.txt'
 
     elif args.dataset == "amazon_products":
         load_path = './dataset/amazon_products.dgl'
@@ -423,18 +423,27 @@ if __name__ == "__main__":
     # method = get_method(method)
     test_mask=G.ndata['test_mask']
     test_idx = torch.nonzero(test_mask).squeeze()
+    # print("Making graph bidirected to match centrality calculation...")
+    # G = dgl.to_bidirected(G, copy_ndata=True)
     G = G.to("cuda" if args.mode == "puregpu" else "cpu")
     # Suppose g is your DGLGraph
     indptr, indices, edge_ids = G.adj_tensors('csr')
     # print("indices before: ",indices)
     device = torch.device("cpu" if args.mode == "cpu" else "cuda")
-    sorted_col_idx = []
-    with open(sortedcol_file, 'r') as f:
-        for line in f:
-            sorted_col_idx.append(float(line.strip()))
-    sorted_col_idx = torch.tensor(sorted_col_idx)
-    sorted_col_idx = sorted_col_idx.to(device)
+    # --- Load binary files using np.load ---
+    print("Loading binary .npy files...")
+    sorted_col_idx = torch.from_numpy(np.load(sortedcol_file)).to(device)
+    degree_vals = torch.from_numpy(np.load(degree_file)).to(device)
+    print("Files loaded.")
+    # sorted_col_idx = []
+    # with open(sortedcol_file, 'r') as f:
+    #     for line in f:
+    #         sorted_col_idx.append(float(line.strip()))
+    # sorted_col_idx = torch.tensor(sorted_col_idx)
+    # sorted_col_idx = sorted_col_idx.to(device)
     # Must match length of original indices
+    # print(sorted_col_idx.shape)
+    # print(indices.shape)
     assert sorted_col_idx.shape == indices.shape
     num_nodes = len(indptr) - 1
     num_edges = indptr[-1].item()
@@ -561,15 +570,15 @@ if __name__ == "__main__":
     # #plt.title('Degree Distribution')
     # plot_name = str(args.dataset) + ".eps"
     # plt.savefig(plot_name, format='eps')
-    degree_vals = []
-    with open(degree_file, 'r') as f:
-        for line in f:
-            degree_vals.append(float(line.strip()))
-    degree_vals = torch.tensor(degree_vals)
+    # degree_vals = []
+    # with open(degree_file, 'r') as f:
+    #     for line in f:
+    #         degree_vals.append(float(line.strip()))
+    # degree_vals = torch.tensor(degree_vals)
 
     # Check if length matches number of nodes
     assert len(degree_vals) == g.num_nodes(), "Mismatch between degree centrality file and graph nodes"
-    degree_vals = degree_vals.to(device)   # device = 'cuda'
+    # degree_vals = degree_vals.to(device)   # device = 'cuda'
     # Filter training nodes by degree centrality
     # train_idx = dataset.train_idx
     # # degree centrality values for training nodes

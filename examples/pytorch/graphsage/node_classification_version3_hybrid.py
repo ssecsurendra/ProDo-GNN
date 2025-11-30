@@ -376,8 +376,8 @@ if __name__ == "__main__":
         dataset = FlickrDataset()
     elif args.dataset == "reddit":
         dataset = RedditDataset()
-        degree_file = 'reddit_degree-centrality.txt'
-        sortedcol_file = 'reddit_degree_sorted-col-index.txt'
+        degree_file = 'reddit_hybrid1-centrality.txt'
+        sortedcol_file = 'reddit_hybrid1_sorted-col-index.txt'
     elif args.dataset == "yelp":
         dataset = YelpDataset()
     elif args.dataset == "ogbn-products":

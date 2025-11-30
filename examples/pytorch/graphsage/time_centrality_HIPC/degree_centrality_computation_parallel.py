@@ -26,7 +26,7 @@ from dgl.data import AsNodePredDataset
 from ogb.nodeproppred import DglNodePropPredDataset
 from dgl.data import CiteseerGraphDataset, CoraGraphDataset, PubmedGraphDataset, WisconsinDataset, FlickrDataset, RedditDataset, YelpDataset
 
-# CUDA kernel for degree centrality
+# --- Kernel 1: CUDA kernel for degree centrality ---
 degree_kernel = cp.RawKernel(r'''
 extern "C" __global__
 void degree_centrality(const int* row_ptr, float* centrality, int num_nodes) {
@@ -38,6 +38,41 @@ void degree_centrality(const int* row_ptr, float* centrality, int num_nodes) {
     }
 }
 ''', 'degree_centrality')
+
+# --- Kernel 2: Sort neighbors by degree centrality ---
+neighbor_sort_kernel = cp.RawKernel(r'''
+extern "C" __global__
+void sort_neighbors(const int* row_ptr,
+                    const int* col_idx,
+                    const float* centrality,
+                    int* sorted_col_idx,
+                    int num_nodes) {
+    int u = blockDim.x * blockIdx.x + threadIdx.x;
+    if (u >= num_nodes) return;
+
+    int start = row_ptr[u];
+    int end   = row_ptr[u+1];
+    int degree = end - start;
+
+    // bubble sort (ok for small degree)
+    for (int i = 0; i < degree; i++) {
+        for (int j = i + 1; j < degree; j++) {
+            int ni = col_idx[start + i];
+            int nj = col_idx[start + j];
+            if (centrality[ni] < centrality[nj]) {
+                int tmp = col_idx[start + i];
+                col_idx[start + i] = col_idx[start + j];
+                col_idx[start + j] = tmp;
+            }
+        }
+    }
+
+    for (int i = 0; i < degree; i++) {
+        sorted_col_idx[start + i] = col_idx[start + i];
+    }
+}
+''', 'sort_neighbors')
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -95,10 +130,6 @@ if __name__ == "__main__":
         elif args.dataset == "igb-medium":
             load_path = './dataset/igb_medium.dgl'
             data, _ = dgl.load_graphs(load_path)
-        elif args.dataset == "igb-small":
-            load_path = './dataset/igb_small.dgl'
-            data, _ = dgl.load_graphs(load_path)
-
         elif args.dataset == "wiki":
             load_path = './dataset/wikidata5M/wikidata5m_dgl_graph.bin'
             data, _ = dgl.load_graphs(load_path)
@@ -132,30 +163,31 @@ if __name__ == "__main__":
     threads_per_block = 256
     blocks = (num_nodes + threads_per_block - 1) // threads_per_block
 
-    # Launch kernel
+    # Launch kernel 1: degree centrality
     degree_kernel((blocks,), (threads_per_block,), 
                   (row_ptr, centrality, num_nodes))
 
     cp.cuda.Device(0).synchronize()
     # Allocate output
     sorted_col_idx = cp.empty_like(col_idx)
+    # --- Launch kernel 2: sort neighbors ---
+    neighbor_sort_kernel((blocks,), (threads_per_block,), (row_ptr, col_idx, centrality, sorted_col_idx, num_nodes))
 
-    # Sort neighbors of each node
-    sorting_start = time.time()
-    for u in range(num_nodes):
-        start, end = row_ptr[u], row_ptr[u+1]
-        neighbors = col_idx[start:end]
+    cp.cuda.Stream.null.synchronize()
 
-        if neighbors.size > 0:
-            # Sort neighbors by descending degree centrality
-            order = cp.argsort(-centrality[neighbors])
-            sorted_col_idx[start:end] = neighbors[order]
-    sorting_end = time.time()
-    print("sorting time", sorting_end-sorting_start, "Seconds")
-
-    # --- ensure output folder exists ---
-    out_dir = "degree-centrality"
-    os.makedirs(out_dir, exist_ok=True)
+    # # Sort neighbors of each node
+    # for u in range(num_nodes):
+    #     start, end = row_ptr[u], row_ptr[u+1]
+    #     neighbors = col_idx[start:end]
+    #
+    #     if neighbors.size > 0:
+    #         # Sort neighbors by descending degree centrality
+    #         order = cp.argsort(-centrality[neighbors])
+    #         sorted_col_idx[start:end] = neighbors[order]
+    #
+    # # --- ensure output folder exists ---
+    # out_dir = "degree-centrality"
+    # os.makedirs(out_dir, exist_ok=True)
 
     # --- save with dataset name inside folder ---
     # filename = os.path.join(out_dir, f"{args.dataset}_degree-centrality.txt")
