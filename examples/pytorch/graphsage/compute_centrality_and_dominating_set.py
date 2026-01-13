@@ -1,3 +1,4 @@
+
 import numpy as np
 import sys
 import dgl
@@ -8,6 +9,7 @@ import cupy as cp
 import argparse
 from cupy.sparse import csr_matrix
 os.environ["DGLBACKEND"] = "pytorch"
+import dgl.function as fn
 from dgl.data import AsNodePredDataset
 from ogb.nodeproppred import DglNodePropPredDataset
 from dgl.data import CiteseerGraphDataset, CoraGraphDataset, PubmedGraphDataset, WisconsinDataset, FlickrDataset, RedditDataset, YelpDataset
@@ -52,7 +54,6 @@ void calculate_cosine_similarity(
             raw_cosine = dot / (sqrtf(norm_a) * sqrtf(norm_b));
         }
         
-        // Clamp to minimum 0.0 as negative weights can make eigenvector centrality problematic
         edge_weights[e] = 1.0f-fmaxf(raw_cosine, 0.0f);
     }
 }
@@ -91,8 +92,7 @@ def gpu_sort_csr_by_centrality(indptr, indices, centrality):
     num_rows = indptr.size - 1
     threads_per_block = 128
     blocks_per_grid = (num_rows + threads_per_block - 1) // threads_per_block
-    selection_sort_kernel((blocks_per_grid,), (threads_per_block,),
-                          (indptr, indices, centrality, num_rows))
+    selection_sort_kernel((blocks_per_grid,), (threads_per_block,), (indptr, indices, centrality, num_rows))
     return indices
 
 def weighted_eigenvector_centrality(g, edge_weights_cp, max_iter=100, tol=1e-6):
@@ -103,7 +103,6 @@ def weighted_eigenvector_centrality(g, edge_weights_cp, max_iter=100, tol=1e-6):
     indices_cp = cp.asarray(indices)
     num_nodes = g.num_nodes()
     
-    # Use the pre-computed edge weights instead of ones
     adj_matrix = csr_matrix((edge_weights_cp, indices_cp, indptr_cp), shape=(num_nodes, num_nodes))
     
     x = cp.ones(num_nodes, dtype=cp.float32)
@@ -120,13 +119,56 @@ def weighted_eigenvector_centrality(g, edge_weights_cp, max_iter=100, tol=1e-6):
         print(f"Did not converge within {max_iter} iterations.")
     return x
 
+def compute_and_save_dominating_set(g, centrality_values_cp, dataset_name, out_dir):
+    print("\n--- Dominating Set Calculation ---")
+    dom_set_start_time = time.time()
+
+    # 1. Sort nodes by the provided centrality
+    print("Sorting nodes by centrality for dominating set...")
+    sorted_nodes_cp = cp.argsort(-centrality_values_cp)
+    
+    # Convert to PyTorch tensor for DGL operations
+    device = g.device
+    num_nodes = g.num_nodes()
+    sorted_nodes = th.from_dlpack(sorted_nodes_cp.toDlpack()).to(device)
+
+    # 2. Create position map
+    print("Creating position map for dominating set...")
+    large_float = float(num_nodes)
+    pos_map = th.full((num_nodes,), large_float, dtype=th.float32, device=device)
+    pos_map[sorted_nodes] = th.arange(num_nodes, device=device, dtype=th.float32)
+    g.ndata['min_rank'] = pos_map
+
+    # 3. Message Passing (1-hop)
+    print("Starting message passing for dominating set...")
+    g.update_all(fn.copy_u('min_rank', 'm'), fn.min('m', 'neighbor_min_rank'))
+    final_min_pos = th.min(g.ndata['min_rank'], g.ndata['neighbor_min_rank']).long()
+
+    # 4. Get the unique dominating nodes
+    dominating_nodes = sorted_nodes[final_min_pos]
+    dominating_set = th.unique(dominating_nodes)
+    
+    dom_set_end_time = time.time()
+    computation_time = dom_set_end_time - dom_set_start_time
+    
+    # 5. Save the result
+    filename_dom_set = os.path.join(out_dir, f"{dataset_name}_eigen_dominating_set.npy")
+    np.save(filename_dom_set, dominating_set.cpu().numpy())
+    
+    print(f"✅ Dominating set saved to {filename_dom_set}")
+    print(f"Number of nodes in dominating set: {len(dominating_set)}")
+
+    # Return the time for the final summary
+    return computation_time
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset", type=str, default="ogbn-arxiv")
+    parser.add_argument("--dataset", type=str, default="ogbn-arxiv",
+                        choices=['reddit', 'ogbn-products', 'ogbn-arxiv', 'yelp', 'igb-small', 'cora', 'citeseer', 'pubmed'])
     parser.add_argument("--max_iter", type=int, default=100)
     args = parser.parse_args()
     
-    print(f"Calculating WEIGHTED Eigenvector Centrality for {args.dataset}.")
+    print(f"Processing dataset: {args.dataset}")
 
     # Load and preprocess dataset
     try:
@@ -152,6 +194,7 @@ if __name__ == "__main__":
     
     # --- 1. Edge Weight Calculation ---
     weight_calc_start_time = time.time()
+    print("\n--- Edge Weight Calculation ---")
     print("Calculating edge weights using cosine similarity...")
     features_cp = cp.asarray(G.ndata['feat'])
     row_ptr_cp = cp.asarray(G.adj_tensors('csr')[0], dtype=cp.int64)
@@ -168,18 +211,23 @@ if __name__ == "__main__":
 
     # --- 2. Weighted Eigenvector Value Calculation ---
     eigen_start_time = time.time()
+    print("\n--- Weighted Eigenvector Centrality Calculation ---")
     eigen_centrality_cp = weighted_eigenvector_centrality(G, edge_weights_cp, max_iter=args.max_iter)
     cp.cuda.Device(0).synchronize()
     eigen_end_time = time.time()
 
-    # --- 3. Sorting ---
+    # --- 3. Sorting (for original script's purpose) ---
     sorted_col_idx_cp = col_idx_cp.copy()
     sorting_start_time = time.time()
+    print("\n--- Sorting Neighbors by Centrality ---")
     gpu_sort_csr_by_centrality(row_ptr_cp, sorted_col_idx_cp, eigen_centrality_cp)
     cp.cuda.Device(0).synchronize()
     sorting_end_time = time.time()
 
-    # --- 4. Save results ---
+    # --- 4. Dominating Set Calculation (New) ---
+    dom_set_time = compute_and_save_dominating_set(G, eigen_centrality_cp, args.dataset, "dissimilarity-eigenvector-centrality")
+
+    # --- 5. Save original results ---
     out_dir = "dissimilarity-eigenvector-centrality"
     os.makedirs(out_dir, exist_ok=True)
     filename_centrality = os.path.join(out_dir, f"{args.dataset}_dissimilar_eigen-centrality.npy")
@@ -192,14 +240,15 @@ if __name__ == "__main__":
     
     overall_end_time = time.time()
 
-    # --- 5. Print Timings ---
+    # --- 6. Print Timings ---
     print("\n--- Execution Timings ---")
     print(f"Weight Calculation Time     : {weight_calc_end_time - weight_calc_start_time:.4f} seconds")
     print(f"Eigenvector Calculation Time: {eigen_end_time - eigen_start_time:.4f} seconds")
-    print(f"Sorting Time                : {sorting_end_time - sorting_start_time:.4f} seconds")
+    print(f"Neighbor Sorting Time       : {sorting_end_time - sorting_start_time:.4f} seconds")
+    print(f"Dominating Set Calc Time    : {dom_set_time:.4f} seconds")
     print(f"File Save Time (binary)     : {save_end_time - save_start_time:.4f} seconds")
     print(f"Overall Execution Time      : {overall_end_time - overall_start_time:.4f} seconds (post-graph-loading)")
-    print("-------------------------\\n")
+    print("-------------------------\n")
     
     print(f"✅ Weighted eigenvector centrality saved to {filename_centrality}")
     print(f"✅ Sorted column-index saved to {filename_sorted_col_idx}")

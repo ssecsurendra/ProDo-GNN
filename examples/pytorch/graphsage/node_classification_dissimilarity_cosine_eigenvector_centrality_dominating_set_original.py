@@ -148,13 +148,59 @@ def train(args, device, g,
     sorted_idx = cp.argsort(-train_degrees)  
 
     # how many to keep (top 70%)
-    k = int(0.7 * len(train_idx))  
+    k = int(1.0 * len(train_idx))  
 
     # select top k training nodes
-    top_train_idx = train_idx[sorted_idx[:k]]  
+    top_train_idx = train_idx[sorted_idx[:k]]
+    print("sorted training node: ",top_train_idx)
+    # device = train_idx.device
+    N = g.num_nodes()
 
+    # Boolean mask for training nodes
+    is_train = torch.zeros(N, dtype=torch.bool, device=device)
+    is_train[train_idx] = True
+
+    # Remaining nodes to dominate
+    remaining = is_train.clone()
+
+    dominating_set = []
+
+    # Pre-fetch adjacency in CSR form (GPU-friendly)
+    indptr, indices, edge_ids = g.adj_tensors('csr')
+
+    dominating_start_time = time.time()
+    # Iterate nodes in eigenvalue-centrality order
+    for u in top_train_idx:
+        u = u.item()
+
+        # Skip if already dominated
+        if not remaining[u]:
+            continue
+
+        # Add u to dominating set
+        dominating_set.append(u)
+
+        # Get neighbors of u
+        start, end = indptr[u], indptr[u + 1]
+        nbrs = indices[start:end]
+
+        # Keep only training neighbors
+        train_nbrs = nbrs[is_train[nbrs]]
+        # Mark u and its training neighbors as dominated
+        remaining[u] = False
+        remaining[train_nbrs] = False
+
+        # Optional early exit
+        if not remaining.any():
+            break
+
+    dominating_set = torch.tensor(dominating_set, device=device)
+    dominating_end_time = time.time()
+    print("Dominating set computation time: ",dominating_end_time - dominating_start_time)
+    print("Dominating set:",dominating_set)
     print("Original training nodes:", len(train_idx))
     print("Filtered training nodes (top 70%):", len(top_train_idx))
+    print("Number of nodes in dominating set:", len(dominating_set))
     val_idx = torch.nonzero(val_mask).squeeze().to(device)
     #print("# val nodes: ",len(val_idx))
     sampler_time = time.time()
@@ -173,7 +219,8 @@ def train(args, device, g,
     Tdataload_time = time.time()
     train_dataloader = DataLoader(
         g,
-        top_train_idx,
+        #top_train_idx,
+        dominating_set,
         sampler,
         #cluster_id,
         device=device,
@@ -300,7 +347,7 @@ def train(args, device, g,
         total_for_loop_time += iteration_time1
         total_model_time += model_time1
         if epoch == 0:
-            layer_line = "Layer_1 {:d} | Layer_2 {:d} | Layer_3 {:d}" .format(int(total_src_nodes_layer_1/it), int(total_src_nodes_layer_2/it), int(total_src_nodes_layer_3/it))
+            layer_line = "Layer_1 {:d} | Layer_2 {:d} | Layer_3 {:d}" .format(int(total_src_nodes_layer_1/(it+1)), int(total_src_nodes_layer_2/(it+1)), int(total_src_nodes_layer_3/(it+1)))
             epoch_lines.append(layer_line)
         acc = evaluate(model, g, val_dataloader, num_classes)
         #print(

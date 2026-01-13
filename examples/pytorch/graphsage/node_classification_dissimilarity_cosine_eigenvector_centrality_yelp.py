@@ -8,6 +8,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torchmetrics.functional as MF
 # from dgl.sampling.metis_sampling import *
+from sklearn.metrics import f1_score
 import tqdm
 from dgl.data import AsNodePredDataset
 from dgl.dataloading import (
@@ -29,8 +30,8 @@ class SAGE(nn.Module):
         # three-layer GraphSAGE-mean
         self.layers.append(dglnn.SAGEConv(in_size, hid_size, "mean"))
         self.layers.append(dglnn.SAGEConv(hid_size, hid_size, "mean"))
-        # self.layers.append(dglnn.SAGEConv(hid_size, hid_size, "mean"))
-        # self.layers.append(dglnn.SAGEConv(hid_size, hid_size, "mean"))
+        self.layers.append(dglnn.SAGEConv(hid_size, hid_size, "mean"))
+        self.layers.append(dglnn.SAGEConv(hid_size, hid_size, "mean"))
         self.layers.append(dglnn.SAGEConv(hid_size, out_size, "mean"))
         # self.layers.append(dglnn.SAGEConv(in_size, hid_size, "gcn"))
         # self.layers.append(dglnn.SAGEConv(hid_size, hid_size, "gcn"))
@@ -99,13 +100,20 @@ def evaluate(model, graph, dataloader, num_classes):
             x = blocks[0].srcdata["feat"]
             ys.append(blocks[-1].dstdata["label"])
             y_hats.append(model(blocks, x))
+    y_true = torch.cat(ys).cpu().numpy()
+    y_pred = torch.cat(y_hats).sigmoid().cpu().numpy() > 0.5
+    # y_pred = torch.cat(y_hats).sigmoid().numpy() > 0.5
+    # Compute metrics
+    f1_micro = f1_score(y_true, y_pred, average='micro')
+    f1_macro = f1_score(y_true, y_pred, average='macro')        
     return MF.accuracy(
         torch.cat(y_hats),
         torch.cat(ys),
-        task="multiclass",
-        num_classes=num_classes,
-    )
-
+        #task="multiclass",
+        task="multilabel",
+        num_labels=num_classes,
+        threshold=0.5
+    ),f1_micro,f1_macro
 
 def layerwise_infer(device, graph, nid, model, num_classes, batch_size):
     model.eval()
@@ -115,9 +123,17 @@ def layerwise_infer(device, graph, nid, model, num_classes, batch_size):
         )  # pred in buffer_device
         pred = pred[nid]
         label = graph.ndata["label"][nid].to(pred.device)
+        y_true = label.cpu().numpy()
+        y_pred = pred.sigmoid().cpu().numpy() > 0.5
+        f1_micro = f1_score(y_true, y_pred, average='micro')
+        f1_macro = f1_score(y_true, y_pred, average='macro')
         return MF.accuracy(
-            pred, label, task="multiclass", num_classes=num_classes
-        )
+            pred, label, 
+            #task="multiclass",
+            task="multilabel",
+            num_labels=num_classes,
+            threshold=0.5
+        ),f1_micro,f1_macro
 
 
 def train(args, device, g, 
@@ -259,8 +275,8 @@ def train(args, device, g,
 
             start_loss_time = time.time()
             #print("After forward pass\n");
-            loss = F.cross_entropy(y_hat, y)
-            #loss = F.binary_cross_entropy_with_logits(y_hat, y.float())
+            # loss = F.cross_entropy(y_hat, y)
+            loss = F.binary_cross_entropy_with_logits(y_hat, y.float())
             end_loss_time = time.time()
 
             start_backward_time = time.time()
@@ -302,14 +318,15 @@ def train(args, device, g,
         if epoch == 0:
             layer_line = "Layer_1 {:d} | Layer_2 {:d} | Layer_3 {:d}" .format(int(total_src_nodes_layer_1/it), int(total_src_nodes_layer_2/it), int(total_src_nodes_layer_3/it))
             epoch_lines.append(layer_line)
-        acc = evaluate(model, g, val_dataloader, num_classes)
+        acc,micro,macro = evaluate(model, g, val_dataloader, num_classes)
         #print(
          #   "\nEpoch {:05d} | Loss {:.4f} | Accuracy {:.4f} | Time : {}\n".format(
           #       epoch, total_loss / (it + 1), acc.item(), execution_time
            #  )
         #)
         #epoch_line = "Epoch {:05d} | Loss {:.4f} | Accuracy {:.4f} | Time : {}".format(epoch, total_loss / (it + 1), acc.item(), execution_time )
-        epoch_line = "Epoch {:05d} | Loss {:.4f} | Accuracy {:.4f} | Time : {:.4f} | Loop_Time : {:.4f} | Model_Time : {:.4f} | x_y_time : {:.4f} | pred_time : {:.4f} | backward_time : {:.4f} | optim_time : {:.4f} ".format(epoch, total_loss / (it + 1), acc.item(), execution_time, iteration_time1, model_time1, x_y_time, pred_time, backward_time, optim_time )
+        # epoch_line = "Epoch {:05d} | Loss {:.4f} | Accuracy {:.4f} | Time : {:.4f} | Loop_Time : {:.4f} | Model_Time : {:.4f} | x_y_time : {:.4f} | pred_time : {:.4f} | backward_time : {:.4f} | optim_time : {:.4f} ".format(epoch, total_loss / (it + 1), acc.item(), execution_time, iteration_time1, model_time1, x_y_time, pred_time, backward_time, optim_time )
+        epoch_line = "Epoch {:05d} | Loss {:.4f} | Accuracy {:.4f}| f1_micro {:.4f} | f1_macro {:.4f} | Time : {:.4f} | Loop_Time : {:.4f} | Model_Time : {:.4f} | x_y_time : {:.4f} | pred_time : {:.4f} | backward_time : {:.4f} | optim_time : {:.4f} ".format(epoch, total_loss / (it + 1), acc.item(), micro.item(), macro.item(), execution_time, iteration_time1, model_time1, x_y_time, pred_time, backward_time, optim_time )
         #print("Epoch {:05d} | Loss {:.4f} | Accuracy {:.4f} | Time : {:.4f} | Loop_Time : {:.4f} | Model_Time : {:.4f} | x_y_time : {:.4f} | pred_time : {:.4f} | backward_time : {:.4f} | optim_time : {:.4f} ".format(epoch, total_loss / (it + 1), acc.item(), execution_time, iteration_time1, model_time1, x_y_time, pred_time, backward_time, optim_time ))
 
         epoch_lines.append(epoch_line)
@@ -348,12 +365,13 @@ if __name__ == "__main__":
     parser.add_argument(
         "--dataset",
         type=str,
-        default="ogbn-arxiv",
+        default="yelp",
         #help="Dataset name ('cora', 'flickr', 'reddit', 'yelp', 'ogbn-products','ogbn-arxiv').",
     )
-    parser.add_argument("--fanout", type=str, default="20,20,20")
+    # parser.add_argument("--fanout", type=str, default="20,20,20")
     # parser.add_argument("--num_clusters", type=str, default="20")
-    # parser.add_argument("--fanout", type=str, default="20,20,20,20,20")
+    #parser.add_argument("--fan_out", type=str, default="10,10,10,10,10")
+    parser.add_argument("--fanout", type=str, default="20,20,20,20,20")
     #parser.add_argument("--fan_out", type=str, default="25,10")
 
     #parser.add_argument("--fan_out", type=str, default="15,15,15")
@@ -376,18 +394,20 @@ if __name__ == "__main__":
         dataset = FlickrDataset()
     elif args.dataset == "reddit":
         dataset = RedditDataset()
-        centrality_file = 'dissimilarity-eigenvector-centrality/reddit_dissimilar_eigen-centrality.npy'
-        sortedcol_file = 'dissimilarity-eigenvector-centrality/reddit_dissimilar_eigen_sorted-col-index.npy'
+        degree_file = 'reddit_degree-centrality.txt'
+        sortedcol_file = 'reddit_sorted-col-index.txt'
     elif args.dataset == "yelp":
         dataset = YelpDataset()
+        centrality_file = 'dissimilarity-eigenvector-centrality/yelp_dissimilar_eigen-centrality.npy'
+        sortedcol_file = 'dissimilarity-eigenvector-centrality/yelp_dissimilar_eigen_sorted-col-index.npy'
     elif args.dataset == "ogbn-products":
         dataset = AsNodePredDataset(DglNodePropPredDataset("ogbn-products"))
-        centrality_file = 'dissimilarity-eigenvector-centrality/ogbn-products_dissimilar_eigen-centrality.npy'
-        sortedcol_file = 'dissimilarity-eigenvector-centrality/ogbn-products_dissimilar_eigen_sorted-col-index.npy'
+        degree_file = 'ogbn-products_degree-centrality.txt'
+        sortedcol_file = 'ogbn-products_sorted-col-index.txt'
     elif args.dataset == "ogbn-arxiv":
         dataset = AsNodePredDataset(DglNodePropPredDataset("ogbn-arxiv"))
-        centrality_file = 'dissimilarity-eigenvector-centrality/ogbn-arxiv_dissimilar_eigen-centrality.npy'
-        sortedcol_file = 'dissimilarity-eigenvector-centrality/ogbn-arxiv_dissimilar_eigen_sorted-col-index.npy'
+        degree_file = 'ogbn-arxiv_degree-centrality.txt'
+        sortedcol_file = 'ogbn-arxiv_sorted-col-index.txt'
     elif args.dataset == "amazon_products":
         load_path = '/data/Dataset/gnn_dataset/amazon_products.dgl'
         dataset, _ = dgl.load_graphs(load_path)
@@ -406,8 +426,8 @@ if __name__ == "__main__":
     elif args.dataset == "igb-small":
         load_path = './dataset/igb_small.dgl'
         dataset, _ = dgl.load_graphs(load_path)
-        centrality_file = 'dissimilarity-eigenvector-centrality/igb-small_dissimilar_eigen-centrality.npy'
-        sortedcol_file = 'dissimilarity-eigenvector-centrality/igb-small_dissimilar_eigen_sorted-col-index.npy'
+        degree_file = 'igb-small_degree-centrality.txt'
+        sortedcol_file = 'igb-small_sorted-col-index.txt'
 
     elif args.dataset == "amazon_products":
         load_path = './dataset/amazon_products.dgl'
@@ -415,16 +435,9 @@ if __name__ == "__main__":
     else:
         raise ValueError("Unknown dataset: {}".format(args.dataset))
     G = dataset[0]
-    # print("G: ",G)
-    # print("ndata: ",G.ndata)
-    # print("edata: ",G.edata)
-    # if len(G.edata) > 0:
-    #     print("G has edge feature")
     # method = get_method(method)
     test_mask=G.ndata['test_mask']
     test_idx = torch.nonzero(test_mask).squeeze()
-    # print("Making graph bidirected to match centrality calculation...")
-    # G = dgl.to_bidirected(G, copy_ndata=True)
     G = G.to("cuda" if args.mode == "puregpu" else "cpu")
     # Suppose g is your DGLGraph
     indptr, indices, edge_ids = G.adj_tensors('csr')
@@ -442,12 +455,9 @@ if __name__ == "__main__":
     # sorted_col_idx = torch.tensor(sorted_col_idx)
     # sorted_col_idx = sorted_col_idx.to(device)
     # Must match length of original indices
-    # print(sorted_col_idx.shape)
-    # print(indices.shape)
     assert sorted_col_idx.shape == indices.shape
     num_nodes = len(indptr) - 1
     num_edges = indptr[-1].item()
-    orig_edge_ids = torch.arange(num_edges, device=device)
 
     # Edge positions 0 ... num_edges-1
     edge_pos = torch.arange(num_edges, dtype=torch.int64, device=indptr.device)
@@ -459,23 +469,11 @@ if __name__ == "__main__":
     col_ids = sorted_col_idx.to(torch.int64)
 
     g = dgl.graph((row_ids, col_ids), num_nodes=num_nodes)
-    # Manually add mapping
-    g.edata['__orig__'] = orig_edge_ids
     # indptr, indices, edge_ids = g.adj_tensors('csr')
     # print("indices after: ",indices)
 
     #g = dgl.from_csr(indptr, sorted_col_idx)
     g.ndata.update(G.ndata)  # copy node features
-    # Transfer edge features (if G has them)
-    if len(G.edata) > 0:
-        orig_eids = g.edata['__orig__']   # mapping new_eid -> old_eid
-        new_edata = {}
-        for key, feat in G.edata.items():
-            if key == '__orig__':
-                continue  # skip the internal mapping
-            # Reorder old feature tensor using mapping
-            new_edata[key] = feat[orig_eids]
-        g.edata.update(new_edata)
     del G
     torch.cuda.empty_cache()
     #print(g)
@@ -578,7 +576,7 @@ if __name__ == "__main__":
 
     # Check if length matches number of nodes
     assert len(centrality_vals) == g.num_nodes(), "Mismatch between degree centrality file and graph nodes"
-    # degree_vals = degree_vals.to(device)   # device = 'cuda'
+    centrality_vals = centrality_vals.to(device)   # device = 'cuda'
     # Filter training nodes by degree centrality
     # train_idx = dataset.train_idx
     # # degree centrality values for training nodes
@@ -645,17 +643,17 @@ if __name__ == "__main__":
     #print(type(cluster_id))
     #print("Device of cluster_id ", cluster_id.device)
 
-    #num_classes = dataset.num_classes
+    num_classes = dataset.num_classes
     labels = g.ndata["label"]
-    num_classes = int(labels.max().item()) + 1
+    # num_classes = int(labels.max().item()) + 1
     #num_classes = 107
     # device = torch.device("cpu" if args.mode == "cpu" else "cuda")
 
     # create GraphSAGE model
     in_size = g.ndata["feat"].shape[1]
     # print("Feature_dim: ",in_size)
-    #out_size = dataset.num_classes
-    out_size = int(labels.max().item()) + 1
+    out_size = dataset.num_classes
+    # out_size = int(labels.max().item()) + 1
     #out_size = 107
     model = SAGE(in_size, 256, out_size).to(device)
 
@@ -672,7 +670,7 @@ if __name__ == "__main__":
 
     # test the model
     #print("Testing...")
-    acc = layerwise_infer(
+    acc,f1_micro,f1_macro = layerwise_infer(
         device, g, test_idx, model, num_classes, batch_size=4096
     )
     #acc = layerwise_infer(

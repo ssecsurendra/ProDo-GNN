@@ -8,6 +8,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torchmetrics.functional as MF
 # from dgl.sampling.metis_sampling import *
+from sklearn.metrics import f1_score
 import tqdm
 from dgl.data import AsNodePredDataset
 from dgl.dataloading import (
@@ -99,12 +100,26 @@ def evaluate(model, graph, dataloader, num_classes):
             x = blocks[0].srcdata["feat"]
             ys.append(blocks[-1].dstdata["label"])
             y_hats.append(model(blocks, x))
+    y_true = torch.cat(ys).cpu().numpy()
+    y_pred = torch.cat(y_hats).sigmoid().cpu().numpy() > 0.5
+    # y_pred = torch.cat(y_hats).sigmoid().numpy() > 0.5
+    # Compute metrics
+    f1_micro = f1_score(y_true, y_pred, average='micro')
+    f1_macro = f1_score(y_true, y_pred, average='macro')        
     return MF.accuracy(
         torch.cat(y_hats),
         torch.cat(ys),
-        task="multiclass",
-        num_classes=num_classes,
-    )
+        #task="multiclass",
+        task="multilabel",
+        num_labels=num_classes,
+        threshold=0.5
+    ),f1_micro,f1_macro        
+    # return MF.accuracy(
+    #     torch.cat(y_hats),
+    #     torch.cat(ys),
+    #     task="multiclass",
+    #     num_classes=num_classes,
+    # )
 
 
 def layerwise_infer(device, graph, nid, model, num_classes, batch_size):
@@ -115,9 +130,20 @@ def layerwise_infer(device, graph, nid, model, num_classes, batch_size):
         )  # pred in buffer_device
         pred = pred[nid]
         label = graph.ndata["label"][nid].to(pred.device)
+        y_true = label.cpu().numpy()
+        y_pred = pred.sigmoid().cpu().numpy() > 0.5
+        f1_micro = f1_score(y_true, y_pred, average='micro')
+        f1_macro = f1_score(y_true, y_pred, average='macro')
         return MF.accuracy(
-            pred, label, task="multiclass", num_classes=num_classes
-        )
+            pred, label, 
+            #task="multiclass",
+            task="multilabel",
+            num_labels=num_classes,
+            threshold=0.5
+        ),f1_micro,f1_macro
+        # return MF.accuracy(
+            # pred, label, task="multiclass", num_classes=num_classes
+        # )
 
 
 def train(args, device, g, 
@@ -148,13 +174,72 @@ def train(args, device, g,
     sorted_idx = cp.argsort(-train_degrees)  
 
     # how many to keep (top 70%)
-    k = int(0.7 * len(train_idx))  
+    k = int(1.0 * len(train_idx))  
 
     # select top k training nodes
-    top_train_idx = train_idx[sorted_idx[:k]]  
+    top_train_idx = train_idx[sorted_idx[:k]]
+    print("sorted training node: ",top_train_idx)
+    # device = train_idx.device
+    N = g.num_nodes()
 
+    # Boolean mask for training nodes
+    is_train = torch.zeros(N, dtype=torch.bool, device=device)
+    is_train[train_idx] = True
+
+    # Remaining nodes to dominate
+    remaining = is_train.clone()
+
+    dominating_set_list = []
+
+    # Pre-fetch adjacency in CSR form (GPU-friendly)
+    indptr, indices, edge_ids = g.adj_tensors('csr')
+
+    dominating_start_time = time.time()
+    # Iterate nodes in eigenvalue-centrality order
+    for u in top_train_idx:
+    # for u in train_idx:
+        u = u.item()
+
+        # Skip if already dominated
+        if not remaining[u]:
+            continue
+
+        # Add u to dominating set
+        dominating_set_list.append(u)
+
+        # Get neighbors of u
+        start, end = indptr[u], indptr[u + 1]
+        nbrs = indices[start:end]
+
+        # Keep only training neighbors
+        train_nbrs = nbrs[is_train[nbrs]]
+        # Mark u and its training neighbors as dominated
+        remaining[u] = False
+        remaining[train_nbrs] = False
+
+        # Optional early exit
+        if not remaining.any():
+            break
+
+    dominating_set = torch.tensor(dominating_set_list, device=device)
+    dominating_end_time = time.time()
+    print("Dominating set computation time: ",dominating_end_time - dominating_start_time)
+    print("Dominating set:",dominating_set)
     print("Original training nodes:", len(train_idx))
-    print("Filtered training nodes (top 70%):", len(top_train_idx))
+    # print("Filtered training nodes (top 70%):", len(top_train_idx))
+    print("Number of nodes in dominating set:", len(dominating_set))
+    target_train_size = int(args.target_train_percentage * len(train_idx))
+    final_train_idx_set = set(dominating_set_list)
+    Maintaining_training_start = time.time()
+    if len(final_train_idx_set) < target_train_size:
+        for node in top_train_idx:
+            if len(final_train_idx_set) >= target_train_size:
+                break
+            final_train_idx_set.add(node.item())
+    maintaining_training_end = time.time()
+    print("Training node maintaining time: ", maintaining_training_end - Maintaining_training_start)        
+    final_train_idx = torch.tensor(list(final_train_idx_set), device=device)
+    print(f"Final training nodes (Dominating Set + Top Centrality): {len(final_train_idx)}")
     val_idx = torch.nonzero(val_mask).squeeze().to(device)
     #print("# val nodes: ",len(val_idx))
     sampler_time = time.time()
@@ -173,7 +258,9 @@ def train(args, device, g,
     Tdataload_time = time.time()
     train_dataloader = DataLoader(
         g,
-        top_train_idx,
+        #top_train_idx,
+        #dominating_set,
+        final_train_idx,
         sampler,
         #cluster_id,
         device=device,
@@ -259,8 +346,8 @@ def train(args, device, g,
 
             start_loss_time = time.time()
             #print("After forward pass\n");
-            loss = F.cross_entropy(y_hat, y)
-            #loss = F.binary_cross_entropy_with_logits(y_hat, y.float())
+            # loss = F.cross_entropy(y_hat, y)
+            loss = F.binary_cross_entropy_with_logits(y_hat, y.float())
             end_loss_time = time.time()
 
             start_backward_time = time.time()
@@ -300,9 +387,9 @@ def train(args, device, g,
         total_for_loop_time += iteration_time1
         total_model_time += model_time1
         if epoch == 0:
-            layer_line = "Layer_1 {:d} | Layer_2 {:d} | Layer_3 {:d}" .format(int(total_src_nodes_layer_1/it), int(total_src_nodes_layer_2/it), int(total_src_nodes_layer_3/it))
+            layer_line = "Layer_1 {:d} | Layer_2 {:d} | Layer_3 {:d}" .format(int(total_src_nodes_layer_1/(it+1)), int(total_src_nodes_layer_2/(it+1)), int(total_src_nodes_layer_3/(it+1)))
             epoch_lines.append(layer_line)
-        acc = evaluate(model, g, val_dataloader, num_classes)
+        acc,micro,macro = evaluate(model, g, val_dataloader, num_classes)
         #print(
          #   "\nEpoch {:05d} | Loss {:.4f} | Accuracy {:.4f} | Time : {}\n".format(
           #       epoch, total_loss / (it + 1), acc.item(), execution_time
@@ -357,7 +444,7 @@ if __name__ == "__main__":
     #parser.add_argument("--fan_out", type=str, default="25,10")
 
     #parser.add_argument("--fan_out", type=str, default="15,15,15")
-
+    parser.add_argument("--target_train_percentage", type=float, default=0.7)
     parser.add_argument("--batch_size", type=int, default=1024)
     parser.add_argument("--epoch", type=int, default=100)
     args = parser.parse_args()
@@ -380,6 +467,8 @@ if __name__ == "__main__":
         sortedcol_file = 'dissimilarity-eigenvector-centrality/reddit_dissimilar_eigen_sorted-col-index.npy'
     elif args.dataset == "yelp":
         dataset = YelpDataset()
+        centrality_file = 'dissimilarity-eigenvector-centrality/yelp_dissimilar_eigen-centrality.npy'
+        sortedcol_file = 'dissimilarity-eigenvector-centrality/yelp_dissimilar_eigen_sorted-col-index.npy'
     elif args.dataset == "ogbn-products":
         dataset = AsNodePredDataset(DglNodePropPredDataset("ogbn-products"))
         centrality_file = 'dissimilarity-eigenvector-centrality/ogbn-products_dissimilar_eigen-centrality.npy'
@@ -645,17 +734,17 @@ if __name__ == "__main__":
     #print(type(cluster_id))
     #print("Device of cluster_id ", cluster_id.device)
 
-    #num_classes = dataset.num_classes
+    num_classes = dataset.num_classes
     labels = g.ndata["label"]
-    num_classes = int(labels.max().item()) + 1
+    # num_classes = int(labels.max().item()) + 1
     #num_classes = 107
     # device = torch.device("cpu" if args.mode == "cpu" else "cuda")
 
     # create GraphSAGE model
     in_size = g.ndata["feat"].shape[1]
     # print("Feature_dim: ",in_size)
-    #out_size = dataset.num_classes
-    out_size = int(labels.max().item()) + 1
+    out_size = dataset.num_classes
+    # out_size = int(labels.max().item()) + 1
     #out_size = 107
     model = SAGE(in_size, 256, out_size).to(device)
 
@@ -672,7 +761,7 @@ if __name__ == "__main__":
 
     # test the model
     #print("Testing...")
-    acc = layerwise_infer(
+    acc,f1_micro,f1_macro = layerwise_infer(
         device, g, test_idx, model, num_classes, batch_size=4096
     )
     #acc = layerwise_infer(

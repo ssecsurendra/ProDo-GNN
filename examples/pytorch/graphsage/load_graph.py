@@ -10,6 +10,17 @@ def load_reddit(self_loop=True):
     g = data[0]
     g.ndata["features"] = g.ndata.pop("feat")
     g.ndata["labels"] = g.ndata.pop("label")
+
+    # Set train, val, test masks
+    train_mask = g.ndata['train_mask']
+    val_mask = g.ndata['val_mask']
+    test_mask = g.ndata['test_mask']
+
+    # Ensure masks are boolean tensors
+    g.ndata["train_mask"] = train_mask.bool()
+    g.ndata["val_mask"] = val_mask.bool()
+    g.ndata["test_mask"] = test_mask.bool()
+
     return g, data.num_classes
 
 

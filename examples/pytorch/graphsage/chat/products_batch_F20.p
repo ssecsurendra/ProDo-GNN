@@ -16,7 +16,6 @@ set xlabel "Batch Size" font "Arial,55 italic bold" offset 0, -3
 set bmargin 8
 set ylabel "Total time (Seconds)" font "Arial,55 italic bold" offset -3
 set lmargin 12
-
 # Define bar style and width
 set style data histograms
 set style histogram cluster gap 1
@@ -34,7 +33,7 @@ set xtics rotate by -45
 
 # Remove extra space between Y-axis and first bar by setting x range
 #set xrange [-0.9:3.5]  # Adjust this range to remove extra space on the left side
-#set xrange [-0.6:2.7]  # Adjust this range to remove extra space on the left side
+#set xrange [-0.6:3.4]  # Adjust this range to remove extra space on the left side
 
 # Plot the data from a text file
 plot 'product_batch_20.txt' using 2:xtic(1) title 'DGL' lt rgb "dark-magenta", \

@@ -33,7 +33,7 @@ set ytics font "Arial,60 italic bold"
 set xtics rotate by -45
 # Remove extra space between Y-axis and first bar by setting x range
 #set xrange [-0.9:3.5]  # Adjust this range to remove extra space on the left side
-#set xrange [-0.6:2.7]  # Adjust this range to remove extra space on the left side
+#set xrange [-0.6:3.4]  # Adjust this range to remove extra space on the left side
 
 # Plot the data from a text file
 plot 'reddit_batch_20.txt' using 2:xtic(1) title 'DGL' lt rgb "dark-magenta", \
