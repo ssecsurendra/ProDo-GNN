@@ -2,11 +2,13 @@
 
 # Run the command and save the output to a variable
 dataset=$1
+#dataset=ogbn-arxiv
 #fanout = $2
 #batch_size = $3
 epoch=$2
+#epoch=100
 batch_sizes=(1024 2048 4096 8192 16384 32768 65536)
-#batch_sizes=(1024)
+# batch_sizes=(1024)
 # batch_sizes=(8192)
 #fanouts=(20)
 fanouts=(20 15 10)
@@ -25,7 +27,7 @@ for fanout in "${fanouts[@]}"; do
     #   output=$(python3 node_classification1.py --dataset=$1 --batch_size=$batch_size --mode=puregpu --fanout=$fanout,$fanout,$fanout --epoch=$2 --method=$3)
     # fi
     # output=$(python3 node_classification_dissimilarity_cosine_eigenvector_centrality_yelp.py --dataset=$1 --batch_size=$batch_size --mode=puregpu --fanout=$fanout,$fanout,$fanout --epoch=$2)
-    output=$(python3 node_classification_dissimilarity_cosine_eigenvector_centrality_dominating_set_maintained_train_nodes_original1.py --dataset=$1 --batch_size=$batch_size --mode=puregpu --fanout=$fanout,$fanout,$fanout --epoch=$2)
+    output=$(python3 node_classification_dissimilarity_cosine_eigenvector_centrality_dominating_set_maintained_train_nodes_original1.py --dataset=$dataset --batch_size=$batch_size --mode=puregpu --fanout=$fanout,$fanout,$fanout --epoch=$epoch)
     #output=$(python3 node_classification1.py --dataset=$1 --batch_size=$batch_size --mode=puregpu --fanout=$fanout,$fanout,$fanout --epoch=$2)
     #output=$(python3 node_classification1.py --dataset=$1 --batch_size=$batch_size --mode=puregpu --fanout=$fanout,$fanout,$fanout --epoch=$2 --method=$3)
     #output=$(python3 node_classification_yelp_surendra.py --dataset=$1 --batch_size=$batch_size --mode=puregpu --fanout=$fanout,$fanout,$fanout --epoch=$2 --method=$3)

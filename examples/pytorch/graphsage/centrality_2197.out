@@ -1,0 +1,6 @@
+
+last_spmm_time: 0.019114 , last_cuda_sampling_time: 0.001443
+Epoch 00099 | Loss 0.1536 | Accuracy 0.9479 | Time : 5.9075 | Loop_Time : 0.7147 | Model_Time : 5.1926 | x_y_time : 0.0016 | pred_time : 2.4096 | backward_time : 2.4381 | optim_time : 0.1258 
+Sampling time: 70.4858, Model training time: 518.2669, Total time 588.7729
+Test Accuracy 0.9470
+Data copied successfully!

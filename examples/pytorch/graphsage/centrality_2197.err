@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "node_classification_dissimilarity_cosine_eigenvector_centrality_dominating_set_maintained_train_nodes_original1.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_dissimilarity_cosine_eigenvector_centrality_dominating_set_maintained_train_nodes_original1.py", line 323, in train
+    loss = F.cross_entropy(y_hat, y)
+  File "/data/surendra/workspace/anaconda3/envs/dgl-centrality/lib/python3.8/site-packages/torch/nn/functional.py", line 3026, in cross_entropy
+    return torch._C._nn.cross_entropy_loss(input, target, weight, _Reduction.get_enum(reduction), ignore_index, label_smoothing)
+RuntimeError: 0D or 1D target tensor expected, multi-target not supported

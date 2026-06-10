@@ -228,7 +228,7 @@ if __name__ == "__main__":
     dom_set_time = compute_and_save_dominating_set(G, eigen_centrality_cp, args.dataset, "dissimilarity-eigenvector-centrality")
 
     # --- 5. Save original results ---
-    out_dir = "dissimilarity-eigenvector-centrality"
+    out_dir = "dissimilarity-eigenvector-centrality-dominating-set"
     os.makedirs(out_dir, exist_ok=True)
     filename_centrality = os.path.join(out_dir, f"{args.dataset}_dissimilar_eigen-centrality.npy")
     filename_sorted_col_idx = os.path.join(out_dir, f"{args.dataset}_dissimilar_eigen_sorted-col-index.npy")

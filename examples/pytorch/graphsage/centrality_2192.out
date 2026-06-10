@@ -1,0 +1,12 @@
+
+last_spmm_time: 200.061005 , last_cuda_sampling_time: 7.488792
+Epoch 00099 | Loss 0.2587 | Accuracy 0.9117 | Time : 10.3134 | Loop_Time : 1.6875 | Model_Time : 8.6254 | x_y_time : 0.0055 | pred_time : 3.3887 | backward_time : 3.3937 | optim_time : 0.2607 
+Sampling time: 165.3506, Model training time: 860.5745, Total time 1025.9758
+Test Accuracy 0.9116
+Data copied successfully!
+
+last_spmm_time: 130.999039 , last_cuda_sampling_time: 5.669203
+Epoch 00099 | Loss 0.2586 | Accuracy 0.9116 | Time : 8.4119 | Loop_Time : 1.6032 | Model_Time : 6.8082 | x_y_time : 0.0060 | pred_time : 2.5971 | backward_time : 2.8330 | optim_time : 0.2717 
+Sampling time: 156.6632, Model training time: 677.9403, Total time 834.6562
+Test Accuracy 0.9116
+Data copied successfully!

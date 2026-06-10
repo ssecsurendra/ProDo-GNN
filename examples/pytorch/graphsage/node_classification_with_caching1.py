@@ -8,7 +8,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torchmetrics.functional as MF
 # from dgl.sampling.metis_sampling import *
-from sklearn.metrics import f1_score
 import tqdm
 from dgl.data import AsNodePredDataset
 from dgl.dataloading import (
@@ -30,12 +29,12 @@ class SAGE(nn.Module):
         # three-layer GraphSAGE-mean
         self.layers.append(dglnn.SAGEConv(in_size, hid_size, "mean"))
         self.layers.append(dglnn.SAGEConv(hid_size, hid_size, "mean"))
-        #self.layers.append(dglnn.SAGEConv(hid_size, hid_size, "mean"))
-        #self.layers.append(dglnn.SAGEConv(hid_size, hid_size, "mean"))
+        # self.layers.append(dglnn.SAGEConv(hid_size, hid_size, "mean"))
+        # self.layers.append(dglnn.SAGEConv(hid_size, hid_size, "mean"))
         self.layers.append(dglnn.SAGEConv(hid_size, out_size, "mean"))
-        #self.layers.append(dglnn.SAGEConv(in_size, hid_size, "gcn"))
-        #self.layers.append(dglnn.SAGEConv(hid_size, hid_size, "gcn"))
-        #self.layers.append(dglnn.SAGEConv(hid_size, out_size, "gcn"))
+        # self.layers.append(dglnn.SAGEConv(in_size, hid_size, "gcn"))
+        # self.layers.append(dglnn.SAGEConv(hid_size, hid_size, "gcn"))
+        # self.layers.append(dglnn.SAGEConv(hid_size, out_size, "gcn"))
 
         self.dropout = nn.Dropout(0.5)
         self.hid_size = hid_size
@@ -91,36 +90,37 @@ class SAGE(nn.Module):
         return y
 
 
-def evaluate(model, graph, dataloader, num_classes):
+def evaluate(model, graph, dataloader, num_classes, device, feat_cache, node_map, cached_nodes_mask):
     model.eval()
     ys = []
     y_hats = []
     for it, (input_nodes, output_nodes, blocks) in enumerate(dataloader):
         with torch.no_grad():
-            x = blocks[0].srcdata["feat"]
+            current_input_nodes = blocks[0].srcdata[dgl.NID]
+            if feat_cache is not None:
+                is_cached = cached_nodes_mask[current_input_nodes]
+                cached_part = current_input_nodes[is_cached]
+                non_cached_part = current_input_nodes[~is_cached]
+
+                x = torch.empty(len(current_input_nodes), graph.ndata['feat'].shape[1], dtype=graph.ndata['feat'].dtype, device=device)
+
+                if len(cached_part) > 0:
+                    cached_indices_in_cache = node_map[cached_part]
+                    x[is_cached] = feat_cache[cached_indices_in_cache]
+
+                if len(non_cached_part) > 0:
+                    x[~is_cached] = graph.ndata['feat'][non_cached_part.to('cpu')].to(device)
+            else:
+                x = graph.ndata['feat'][current_input_nodes].to(device)
+
             ys.append(blocks[-1].dstdata["label"])
             y_hats.append(model(blocks, x))
-    y_true = torch.cat(ys).cpu().numpy()
-    y_pred = torch.cat(y_hats).sigmoid().cpu().numpy() > 0.5
-    # y_pred = torch.cat(y_hats).sigmoid().numpy() > 0.5
-    # Compute metrics
-    f1_micro = f1_score(y_true, y_pred, average='micro')
-    f1_macro = f1_score(y_true, y_pred, average='macro')        
     return MF.accuracy(
         torch.cat(y_hats),
         torch.cat(ys),
-        #task="multiclass",
-        task="multilabel",
-        num_labels=num_classes,
-        threshold=0.5
-    ),f1_micro,f1_macro        
-    # return MF.accuracy(
-    #     torch.cat(y_hats),
-    #     torch.cat(ys),
-    #     task="multiclass",
-    #     num_classes=num_classes,
-    # )
-
+        task="multiclass",
+        num_classes=num_classes,
+    )
 
 def layerwise_infer(device, graph, nid, model, num_classes, batch_size):
     model.eval()
@@ -130,26 +130,12 @@ def layerwise_infer(device, graph, nid, model, num_classes, batch_size):
         )  # pred in buffer_device
         pred = pred[nid]
         label = graph.ndata["label"][nid].to(pred.device)
-        y_true = label.cpu().numpy()
-        y_pred = pred.sigmoid().cpu().numpy() > 0.5
-        f1_micro = f1_score(y_true, y_pred, average='micro')
-        f1_macro = f1_score(y_true, y_pred, average='macro')
         return MF.accuracy(
-            pred, label, 
-            #task="multiclass",
-            task="multilabel",
-            num_labels=num_classes,
-            threshold=0.5
-        ),f1_micro,f1_macro
-        # return MF.accuracy(
-            # pred, label, task="multiclass", num_classes=num_classes
-        # )
+            pred, label, task="multiclass", num_classes=num_classes
+        )
 
 
-def train(args, device, g, 
-          # cluster_id,
-          dataset, model, num_classes, centrality_vals):
-
+def train(args, device, g, dataset, model, num_classes, centrality_vals, feat_cache, node_map, cached_nodes_mask):
     # create sampler & dataloader
     #train_idx = dataset.train_idx.to(device)
     #val_idx = dataset.val_idx.to(device)
@@ -183,8 +169,8 @@ def train(args, device, g,
     N = g.num_nodes()
 
     # Boolean mask for training nodes
-    is_train = torch.zeros(N, dtype=torch.bool, device=device)
-    is_train[train_idx] = True
+    is_train = torch.zeros(N, dtype=torch.bool, device='cpu')
+    is_train[train_idx.to('cpu')] = True
 
     # Remaining nodes to dominate
     remaining = is_train.clone()
@@ -237,16 +223,15 @@ def train(args, device, g,
                 break
             final_train_idx_set.add(node.item())
     maintaining_training_end = time.time()
-    print("Training node maintaining time: ", maintaining_training_end - Maintaining_training_start)        
-    final_train_idx = torch.tensor(list(final_train_idx_set), device=device)
+    print("Training node maintaining time: ", maintaining_training_end - Maintaining_training_start)
+    final_train_idx = torch.tensor(list(final_train_idx_set))
     print(f"Final training nodes (Dominating Set + Top Centrality): {len(final_train_idx)}")
-    val_idx = torch.nonzero(val_mask).squeeze().to(device)
+    val_idx = torch.nonzero(val_mask).squeeze()
     #print("# val nodes: ",len(val_idx))
     sampler_time = time.time()
 
     sampler = NeighborSampler(
         [int(fanout) for fanout in args.fanout.split(",")],  # fanout for [layer-0, layer-1, layer-2]
-        prefetch_node_feats=["feat"],
         prefetch_labels=["label"],
     )
     sampler_end_time = time.time()
@@ -254,7 +239,7 @@ def train(args, device, g,
     #print("Sampler time:", sampler_time, "seconds")
 
 
-    use_uva = args.mode == "mixed"
+    use_uva = False
     Tdataload_time = time.time()
     train_dataloader = DataLoader(
         g,
@@ -337,6 +322,19 @@ def train(args, device, g,
 
             start_pred_time = time.time()
             #print("before forward pass\n");
+            current_input_nodes = blocks[0].srcdata[dgl.NID]
+            if args.mode == 'mixed' and feat_cache is not None:
+                is_cached = cached_nodes_mask[current_input_nodes]
+                cached_part = current_input_nodes[is_cached]
+                non_cached_part = current_input_nodes[~is_cached]
+                x = torch.empty(len(current_input_nodes), g.ndata['feat'].shape[1], dtype=g.ndata['feat'].dtype, device=device)
+                if len(cached_part) > 0:
+                    cached_indices_in_cache = node_map[cached_part]
+                    x[is_cached] = feat_cache[cached_indices_in_cache]
+                if len(non_cached_part) > 0:
+                    x[~is_cached] = g.ndata['feat'][non_cached_part.to('cpu')].to(device)
+            else:
+                x = g.ndata['feat'][current_input_nodes].to(device)
             y_hat = model(blocks, x)
             # print("y:",y)
             # print("Shape of y",y.shape)
@@ -346,8 +344,8 @@ def train(args, device, g,
 
             start_loss_time = time.time()
             #print("After forward pass\n");
-            # loss = F.cross_entropy(y_hat, y)
-            loss = F.binary_cross_entropy_with_logits(y_hat, y.float())
+            loss = F.cross_entropy(y_hat, y)
+            #loss = F.binary_cross_entropy_with_logits(y_hat, y.float())
             end_loss_time = time.time()
 
             start_backward_time = time.time()
@@ -389,7 +387,7 @@ def train(args, device, g,
         if epoch == 0:
             layer_line = "Layer_1 {:d} | Layer_2 {:d} | Layer_3 {:d}" .format(int(total_src_nodes_layer_1/(it+1)), int(total_src_nodes_layer_2/(it+1)), int(total_src_nodes_layer_3/(it+1)))
             epoch_lines.append(layer_line)
-        acc,micro,macro = evaluate(model, g, val_dataloader, num_classes)
+        acc = evaluate(model, g, val_dataloader, num_classes, device, feat_cache, node_map, cached_nodes_mask)
         #print(
          #   "\nEpoch {:05d} | Loss {:.4f} | Accuracy {:.4f} | Time : {}\n".format(
           #       epoch, total_loss / (it + 1), acc.item(), execution_time
@@ -440,13 +438,14 @@ if __name__ == "__main__":
     )
     parser.add_argument("--fanout", type=str, default="20,20,20")
     # parser.add_argument("--num_clusters", type=str, default="20")
-    #parser.add_argument("--fanout", type=str, default="20,20,20,20,20")
+    # parser.add_argument("--fanout", type=str, default="20,20,20,20,20")
     #parser.add_argument("--fan_out", type=str, default="25,10")
 
     #parser.add_argument("--fan_out", type=str, default="15,15,15")
     parser.add_argument("--target_train_percentage", type=float, default=0.7)
     parser.add_argument("--batch_size", type=int, default=1024)
     parser.add_argument("--epoch", type=int, default=100)
+    parser.add_argument("--cache_rate", type=float, default=0.5, help="Fraction of nodes to cache based on degree.")
     args = parser.parse_args()
     #print(f"Training with DGL built-in GraphConv module.")
 
@@ -520,10 +519,13 @@ if __name__ == "__main__":
     # print("indices before: ",indices)
     device = torch.device("cpu" if args.mode == "cpu" else "cuda")
     # --- Load binary files using np.load ---
+    file_loading_start = time.time()
     print("Loading binary .npy files...")
     sorted_col_idx = torch.from_numpy(np.load(sortedcol_file)).to(device)
     centrality_vals = torch.from_numpy(np.load(centrality_file)).to(device)
     print("Files loaded.")
+    file_loading_end = time.time()
+    print("File loading time: ", file_loading_end - file_loading_start)
     # sorted_col_idx = []
     # with open(sortedcol_file, 'r') as f:
     #     for line in f:
@@ -536,7 +538,7 @@ if __name__ == "__main__":
     assert sorted_col_idx.shape == indices.shape
     num_nodes = len(indptr) - 1
     num_edges = indptr[-1].item()
-    orig_edge_ids = torch.arange(num_edges, device=device)
+    orig_edge_ids = torch.arange(num_edges, device='cpu')
 
     # Edge positions 0 ... num_edges-1
     edge_pos = torch.arange(num_edges, dtype=torch.int64, device=indptr.device)
@@ -547,7 +549,7 @@ if __name__ == "__main__":
     # col_ids = sorted column indices
     col_ids = sorted_col_idx.to(torch.int64)
 
-    g = dgl.graph((row_ids, col_ids), num_nodes=num_nodes)
+    g = dgl.graph((row_ids, col_ids.to(row_ids.device)), num_nodes=num_nodes)
     # Manually add mapping
     g.edata['__orig__'] = orig_edge_ids
     # indptr, indices, edge_ids = g.adj_tensors('csr')
@@ -734,17 +736,17 @@ if __name__ == "__main__":
     #print(type(cluster_id))
     #print("Device of cluster_id ", cluster_id.device)
 
-    num_classes = dataset.num_classes
+    #num_classes = dataset.num_classes
     labels = g.ndata["label"]
-    # num_classes = int(labels.max().item()) + 1
+    num_classes = int(labels.max().item()) + 1
     #num_classes = 107
     # device = torch.device("cpu" if args.mode == "cpu" else "cuda")
 
     # create GraphSAGE model
     in_size = g.ndata["feat"].shape[1]
     # print("Feature_dim: ",in_size)
-    out_size = dataset.num_classes
-    # out_size = int(labels.max().item()) + 1
+    #out_size = dataset.num_classes
+    out_size = int(labels.max().item()) + 1
     #out_size = 107
     model = SAGE(in_size, 256, out_size).to(device)
 
@@ -752,16 +754,35 @@ if __name__ == "__main__":
     if args.dt == "bfloat16":
         g = dgl.to_bfloat16(g)
         model = model.to(dtype=torch.bfloat16)
+    feat_cache, node_map, cached_nodes_mask = None, None, None
+    if args.mode == 'mixed':
+        num_nodes_to_cache = int(g.num_nodes() * args.cache_rate)
+        print(f"Caching based on degree: {num_nodes_to_cache} nodes ({args.cache_rate*100}%).")
 
-    # model training
-    #print("Training...")
-    epoch_lines = train(args, device, g, 
-                        # cluster_id, 
-                        dataset, model, num_classes, centrality_vals)
+        if num_nodes_to_cache > 0:
+            degrees = g.in_degrees()
+            sorted_degrees, sorted_indices = torch.sort(degrees, descending=True)
+            high_degree_nodes = sorted_indices[:num_nodes_to_cache]
+            
+            cached_nodes_mask = torch.zeros(g.num_nodes(), dtype=torch.bool)
+            cached_nodes_mask[high_degree_nodes] = True
+            cached_nodes_mask = cached_nodes_mask.to(device)
+
+            node_map = torch.full((g.num_nodes(),), -1, dtype=torch.long)
+            node_map[high_degree_nodes] = torch.arange(num_nodes_to_cache)
+            node_map = node_map.to(device)
+
+            feat_cache = g.ndata['feat'][high_degree_nodes].to(device)
+            print(f"Cached features for {num_nodes_to_cache} nodes on GPU based on degree.")
+
+    
+    epoch_lines = train(args, device, g, dataset, model, num_classes, centrality_vals, feat_cache, node_map, cached_nodes_mask)
+
+
 
     # test the model
     #print("Testing...")
-    acc,f1_micro,f1_macro = layerwise_infer(
+    acc = layerwise_infer(
         device, g, test_idx, model, num_classes, batch_size=4096
     )
     #acc = layerwise_infer(

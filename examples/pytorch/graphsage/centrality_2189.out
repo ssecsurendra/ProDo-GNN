@@ -1,0 +1,42 @@
+
+last_spmm_time: 414.559906 , last_cuda_sampling_time: 15.499857
+Epoch 00099 | Loss 0.7522 | Accuracy 0.7409 | Time : 29.0478 | Loop_Time : 2.4194 | Model_Time : 26.6277 | x_y_time : 0.0058 | pred_time : 14.7899 | backward_time : 6.6955 | optim_time : 0.3668 
+Sampling time: 241.4920, Model training time: 2662.4094, Total time 2903.9710
+Test Accuracy 0.7449
+Data copied successfully!
+
+last_spmm_time: 348.566742 , last_cuda_sampling_time: 13.221819
+Epoch 00099 | Loss 0.7441 | Accuracy 0.7458 | Time : 19.8294 | Loop_Time : 1.5758 | Model_Time : 18.2533 | x_y_time : 0.0030 | pred_time : 10.2208 | backward_time : 4.9089 | optim_time : 0.1871 
+Sampling time: 157.9220, Model training time: 1826.7697, Total time 1984.7272
+Test Accuracy 0.7485
+Data copied successfully!
+
+last_spmm_time: 274.193787 , last_cuda_sampling_time: 10.595790
+Epoch 00099 | Loss 0.7359 | Accuracy 0.7465 | Time : 13.2649 | Loop_Time : 1.0903 | Model_Time : 12.1744 | x_y_time : 0.0015 | pred_time : 6.7654 | backward_time : 3.6292 | optim_time : 0.0927 
+Sampling time: 109.6830, Model training time: 1217.9020, Total time 1327.6075
+Test Accuracy 0.7500
+Data copied successfully!
+
+last_spmm_time: 199.276535 , last_cuda_sampling_time: 7.931834
+Epoch 00099 | Loss 0.7302 | Accuracy 0.7479 | Time : 8.4660 | Loop_Time : 0.7078 | Model_Time : 7.7581 | x_y_time : 0.0008 | pred_time : 4.2872 | backward_time : 2.5013 | optim_time : 0.0486 
+Sampling time: 70.9231, Model training time: 777.2038, Total time 848.1416
+Test Accuracy 0.7510
+Data copied successfully!
+
+last_spmm_time: 133.724503 , last_cuda_sampling_time: 5.546407
+Epoch 00099 | Loss 0.7268 | Accuracy 0.7468 | Time : 5.2739 | Loop_Time : 0.4796 | Model_Time : 4.7942 | x_y_time : 0.0004 | pred_time : 2.6085 | backward_time : 1.6815 | optim_time : 0.0245 
+Sampling time: 48.0700, Model training time: 480.5716, Total time 528.6529
+Test Accuracy 0.7506
+Data copied successfully!
+
+last_spmm_time: 84.351257 , last_cuda_sampling_time: 3.619018
+Epoch 00099 | Loss 0.7274 | Accuracy 0.7480 | Time : 3.1599 | Loop_Time : 0.3002 | Model_Time : 2.8596 | x_y_time : 0.0002 | pred_time : 1.5321 | backward_time : 1.0699 | optim_time : 0.0127 
+Sampling time: 30.0245, Model training time: 287.2225, Total time 317.2564
+Test Accuracy 0.7516
+Data copied successfully!
+
+last_spmm_time: 53.067909 , last_cuda_sampling_time: 2.343916
+Epoch 00099 | Loss 0.7326 | Accuracy 0.7480 | Time : 1.9457 | Loop_Time : 0.1883 | Model_Time : 1.7574 | x_y_time : 0.0001 | pred_time : 0.9241 | backward_time : 0.6933 | optim_time : 0.0069 
+Sampling time: 18.8847, Model training time: 176.8463, Total time 195.7396
+Test Accuracy 0.7513
+Data copied successfully!

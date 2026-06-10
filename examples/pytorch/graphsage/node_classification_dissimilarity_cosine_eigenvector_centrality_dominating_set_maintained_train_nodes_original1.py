@@ -1,14 +1,13 @@
 import dgl
 import argparse
 import time
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import dgl.nn as dglnn
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torchmetrics.functional as MF
 # from dgl.sampling.metis_sampling import *
-from sklearn.metrics import f1_score
 import tqdm
 from dgl.data import AsNodePredDataset
 from dgl.dataloading import (
@@ -100,26 +99,12 @@ def evaluate(model, graph, dataloader, num_classes):
             x = blocks[0].srcdata["feat"]
             ys.append(blocks[-1].dstdata["label"])
             y_hats.append(model(blocks, x))
-    y_true = torch.cat(ys).cpu().numpy()
-    y_pred = torch.cat(y_hats).sigmoid().cpu().numpy() > 0.5
-    # y_pred = torch.cat(y_hats).sigmoid().numpy() > 0.5
-    # Compute metrics
-    f1_micro = f1_score(y_true, y_pred, average='micro')
-    f1_macro = f1_score(y_true, y_pred, average='macro')        
     return MF.accuracy(
         torch.cat(y_hats),
         torch.cat(ys),
-        #task="multiclass",
-        task="multilabel",
-        num_labels=num_classes,
-        threshold=0.5
-    ),f1_micro,f1_macro        
-    # return MF.accuracy(
-    #     torch.cat(y_hats),
-    #     torch.cat(ys),
-    #     task="multiclass",
-    #     num_classes=num_classes,
-    # )
+        task="multiclass",
+        num_classes=num_classes,
+    )
 
 
 def layerwise_infer(device, graph, nid, model, num_classes, batch_size):
@@ -130,20 +115,9 @@ def layerwise_infer(device, graph, nid, model, num_classes, batch_size):
         )  # pred in buffer_device
         pred = pred[nid]
         label = graph.ndata["label"][nid].to(pred.device)
-        y_true = label.cpu().numpy()
-        y_pred = pred.sigmoid().cpu().numpy() > 0.5
-        f1_micro = f1_score(y_true, y_pred, average='micro')
-        f1_macro = f1_score(y_true, y_pred, average='macro')
         return MF.accuracy(
-            pred, label, 
-            #task="multiclass",
-            task="multilabel",
-            num_labels=num_classes,
-            threshold=0.5
-        ),f1_micro,f1_macro
-        # return MF.accuracy(
-            # pred, label, task="multiclass", num_classes=num_classes
-        # )
+            pred, label, task="multiclass", num_classes=num_classes
+        )
 
 
 def train(args, device, g, 
@@ -237,7 +211,7 @@ def train(args, device, g,
                 break
             final_train_idx_set.add(node.item())
     maintaining_training_end = time.time()
-    print("Training node maintaining time: ", maintaining_training_end - Maintaining_training_start)        
+    print("Training node maintaining time: ", maintaining_training_end - Maintaining_training_start)
     final_train_idx = torch.tensor(list(final_train_idx_set), device=device)
     print(f"Final training nodes (Dominating Set + Top Centrality): {len(final_train_idx)}")
     val_idx = torch.nonzero(val_mask).squeeze().to(device)
@@ -346,8 +320,8 @@ def train(args, device, g,
 
             start_loss_time = time.time()
             #print("After forward pass\n");
-            # loss = F.cross_entropy(y_hat, y)
-            loss = F.binary_cross_entropy_with_logits(y_hat, y.float())
+            loss = F.cross_entropy(y_hat, y)
+            #loss = F.binary_cross_entropy_with_logits(y_hat, y.float())
             end_loss_time = time.time()
 
             start_backward_time = time.time()
@@ -389,7 +363,7 @@ def train(args, device, g,
         if epoch == 0:
             layer_line = "Layer_1 {:d} | Layer_2 {:d} | Layer_3 {:d}" .format(int(total_src_nodes_layer_1/(it+1)), int(total_src_nodes_layer_2/(it+1)), int(total_src_nodes_layer_3/(it+1)))
             epoch_lines.append(layer_line)
-        acc,micro,macro = evaluate(model, g, val_dataloader, num_classes)
+        acc = evaluate(model, g, val_dataloader, num_classes)
         #print(
          #   "\nEpoch {:05d} | Loss {:.4f} | Accuracy {:.4f} | Time : {}\n".format(
           #       epoch, total_loss / (it + 1), acc.item(), execution_time
@@ -520,10 +494,13 @@ if __name__ == "__main__":
     # print("indices before: ",indices)
     device = torch.device("cpu" if args.mode == "cpu" else "cuda")
     # --- Load binary files using np.load ---
+    file_loading_start = time.time()
     print("Loading binary .npy files...")
     sorted_col_idx = torch.from_numpy(np.load(sortedcol_file)).to(device)
     centrality_vals = torch.from_numpy(np.load(centrality_file)).to(device)
     print("Files loaded.")
+    file_loading_end = time.time()
+    print("File loading time: ", file_loading_end - file_loading_start)
     # sorted_col_idx = []
     # with open(sortedcol_file, 'r') as f:
     #     for line in f:
@@ -734,17 +711,17 @@ if __name__ == "__main__":
     #print(type(cluster_id))
     #print("Device of cluster_id ", cluster_id.device)
 
-    num_classes = dataset.num_classes
+    #num_classes = dataset.num_classes
     labels = g.ndata["label"]
-    # num_classes = int(labels.max().item()) + 1
+    num_classes = int(labels.max().item()) + 1
     #num_classes = 107
     # device = torch.device("cpu" if args.mode == "cpu" else "cuda")
 
     # create GraphSAGE model
     in_size = g.ndata["feat"].shape[1]
     # print("Feature_dim: ",in_size)
-    out_size = dataset.num_classes
-    # out_size = int(labels.max().item()) + 1
+    #out_size = dataset.num_classes
+    out_size = int(labels.max().item()) + 1
     #out_size = 107
     model = SAGE(in_size, 256, out_size).to(device)
 
@@ -761,7 +738,7 @@ if __name__ == "__main__":
 
     # test the model
     #print("Testing...")
-    acc,f1_micro,f1_macro = layerwise_infer(
+    acc = layerwise_infer(
         device, g, test_idx, model, num_classes, batch_size=4096
     )
     #acc = layerwise_infer(

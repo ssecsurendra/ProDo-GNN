@@ -1,0 +1,113 @@
+Python path configuration:
+  PYTHONHOME = '/apps/python/3.10.13'
+  PYTHONPATH = (not set)
+  program name = '/data/surendra/workspace/anaconda3/bin/python'
+  isolated = 0
+  environment = 1
+  user site = 1
+  safe_path = 0
+  import site = 1
+  is in build tree = 0
+  stdlib dir = '/apps/python/3.10.13/lib/python3.11'
+  sys._base_executable = '/data/surendra/workspace/anaconda3/bin/python'
+  sys.base_prefix = '/apps/python/3.10.13'
+  sys.base_exec_prefix = '/apps/python/3.10.13'
+  sys.platlibdir = 'lib'
+  sys.executable = '/data/surendra/workspace/anaconda3/bin/python'
+  sys.prefix = '/apps/python/3.10.13'
+  sys.exec_prefix = '/apps/python/3.10.13'
+  sys.path = [
+    '/apps/python/3.10.13/lib/python311.zip',
+    '/apps/python/3.10.13/lib/python3.11',
+    '/apps/python/3.10.13/lib/python3.11/lib-dynload',
+  ]
+Fatal Python error: init_fs_encoding: failed to get the Python codec of the filesystem encoding
+Python runtime state: core initialized
+ModuleNotFoundError: No module named 'encodings'
+
+Current thread 0x00007f5d3dec5740 (most recent call first):
+  <no Python frame>
+Traceback (most recent call last):
+  File "/data/surendra/workspace/dgl_centrality/examples/pytorch/graphsage/node_classification_dissimilarity_cosine_eigenvector_centrality_dominating_set_maintained_train_nodes_original1.py", line 9, in <module>
+    import torchmetrics.functional as MF
+ModuleNotFoundError: No module named 'torchmetrics'
+Traceback (most recent call last):
+  File "/data/surendra/workspace/dgl_centrality/examples/pytorch/graphsage/node_classification_dissimilarity_cosine_eigenvector_centrality_dominating_set_maintained_train_nodes_original1.py", line 9, in <module>
+    import torchmetrics.functional as MF
+ModuleNotFoundError: No module named 'torchmetrics'
+Traceback (most recent call last):
+  File "/data/surendra/workspace/dgl_centrality/examples/pytorch/graphsage/node_classification_dissimilarity_cosine_eigenvector_centrality_dominating_set_maintained_train_nodes_original1.py", line 9, in <module>
+    import torchmetrics.functional as MF
+ModuleNotFoundError: No module named 'torchmetrics'
+Traceback (most recent call last):
+  File "/data/surendra/workspace/dgl_centrality/examples/pytorch/graphsage/node_classification_dissimilarity_cosine_eigenvector_centrality_dominating_set_maintained_train_nodes_original1.py", line 9, in <module>
+    import torchmetrics.functional as MF
+ModuleNotFoundError: No module named 'torchmetrics'
+Traceback (most recent call last):
+  File "/data/surendra/workspace/dgl_centrality/examples/pytorch/graphsage/node_classification_dissimilarity_cosine_eigenvector_centrality_dominating_set_maintained_train_nodes_original1.py", line 9, in <module>
+    import torchmetrics.functional as MF
+ModuleNotFoundError: No module named 'torchmetrics'
+Traceback (most recent call last):
+  File "/data/surendra/workspace/dgl_centrality/examples/pytorch/graphsage/node_classification_dissimilarity_cosine_eigenvector_centrality_dominating_set_maintained_train_nodes_original1.py", line 9, in <module>
+    import torchmetrics.functional as MF
+ModuleNotFoundError: No module named 'torchmetrics'
+Traceback (most recent call last):
+  File "/data/surendra/workspace/dgl_centrality/examples/pytorch/graphsage/node_classification_dissimilarity_cosine_eigenvector_centrality_dominating_set_maintained_train_nodes_original1.py", line 9, in <module>
+    import torchmetrics.functional as MF
+ModuleNotFoundError: No module named 'torchmetrics'
+Traceback (most recent call last):
+  File "/data/surendra/workspace/dgl_centrality/examples/pytorch/graphsage/node_classification_dissimilarity_cosine_eigenvector_centrality_dominating_set_maintained_train_nodes_original1.py", line 9, in <module>
+    import torchmetrics.functional as MF
+ModuleNotFoundError: No module named 'torchmetrics'
+Traceback (most recent call last):
+  File "/data/surendra/workspace/dgl_centrality/examples/pytorch/graphsage/node_classification_dissimilarity_cosine_eigenvector_centrality_dominating_set_maintained_train_nodes_original1.py", line 9, in <module>
+    import torchmetrics.functional as MF
+ModuleNotFoundError: No module named 'torchmetrics'
+Traceback (most recent call last):
+  File "/data/surendra/workspace/dgl_centrality/examples/pytorch/graphsage/node_classification_dissimilarity_cosine_eigenvector_centrality_dominating_set_maintained_train_nodes_original1.py", line 9, in <module>
+    import torchmetrics.functional as MF
+ModuleNotFoundError: No module named 'torchmetrics'
+Traceback (most recent call last):
+  File "/data/surendra/workspace/dgl_centrality/examples/pytorch/graphsage/node_classification_dissimilarity_cosine_eigenvector_centrality_dominating_set_maintained_train_nodes_original1.py", line 9, in <module>
+    import torchmetrics.functional as MF
+ModuleNotFoundError: No module named 'torchmetrics'
+Traceback (most recent call last):
+  File "/data/surendra/workspace/dgl_centrality/examples/pytorch/graphsage/node_classification_dissimilarity_cosine_eigenvector_centrality_dominating_set_maintained_train_nodes_original1.py", line 9, in <module>
+    import torchmetrics.functional as MF
+ModuleNotFoundError: No module named 'torchmetrics'
+Traceback (most recent call last):
+  File "/data/surendra/workspace/dgl_centrality/examples/pytorch/graphsage/node_classification_dissimilarity_cosine_eigenvector_centrality_dominating_set_maintained_train_nodes_original1.py", line 9, in <module>
+    import torchmetrics.functional as MF
+ModuleNotFoundError: No module named 'torchmetrics'
+Traceback (most recent call last):
+  File "/data/surendra/workspace/dgl_centrality/examples/pytorch/graphsage/node_classification_dissimilarity_cosine_eigenvector_centrality_dominating_set_maintained_train_nodes_original1.py", line 9, in <module>
+    import torchmetrics.functional as MF
+ModuleNotFoundError: No module named 'torchmetrics'
+Traceback (most recent call last):
+  File "/data/surendra/workspace/dgl_centrality/examples/pytorch/graphsage/node_classification_dissimilarity_cosine_eigenvector_centrality_dominating_set_maintained_train_nodes_original1.py", line 9, in <module>
+    import torchmetrics.functional as MF
+ModuleNotFoundError: No module named 'torchmetrics'
+Traceback (most recent call last):
+  File "/data/surendra/workspace/dgl_centrality/examples/pytorch/graphsage/node_classification_dissimilarity_cosine_eigenvector_centrality_dominating_set_maintained_train_nodes_original1.py", line 9, in <module>
+    import torchmetrics.functional as MF
+ModuleNotFoundError: No module named 'torchmetrics'
+Traceback (most recent call last):
+  File "/data/surendra/workspace/dgl_centrality/examples/pytorch/graphsage/node_classification_dissimilarity_cosine_eigenvector_centrality_dominating_set_maintained_train_nodes_original1.py", line 9, in <module>
+    import torchmetrics.functional as MF
+ModuleNotFoundError: No module named 'torchmetrics'
+Traceback (most recent call last):
+  File "/data/surendra/workspace/dgl_centrality/examples/pytorch/graphsage/node_classification_dissimilarity_cosine_eigenvector_centrality_dominating_set_maintained_train_nodes_original1.py", line 9, in <module>
+    import torchmetrics.functional as MF
+ModuleNotFoundError: No module named 'torchmetrics'
+Traceback (most recent call last):
+  File "/data/surendra/workspace/dgl_centrality/examples/pytorch/graphsage/node_classification_dissimilarity_cosine_eigenvector_centrality_dominating_set_maintained_train_nodes_original1.py", line 9, in <module>
+    import torchmetrics.functional as MF
+ModuleNotFoundError: No module named 'torchmetrics'
+Traceback (most recent call last):
+  File "/data/surendra/workspace/dgl_centrality/examples/pytorch/graphsage/node_classification_dissimilarity_cosine_eigenvector_centrality_dominating_set_maintained_train_nodes_original1.py", line 9, in <module>
+    import torchmetrics.functional as MF
+ModuleNotFoundError: No module named 'torchmetrics'
+Traceback (most recent call last):
+  File "/data/surendra/workspace/dgl_centrality/examples/pytorch/graphsage/node_classification_dissimilarity_cosine_eigenvector_centrality_dominating_set_maintained_train_nodes_original1.py", line 9, in <module>
+    import torchmetrics.functional as MF
+ModuleNotFoundError: No module named 'torchmetrics'

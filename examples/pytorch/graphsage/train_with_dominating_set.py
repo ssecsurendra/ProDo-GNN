@@ -257,7 +257,7 @@ if __name__ == "__main__":
     print(f"Training in {args.mode} mode for {args.dataset} dataset.")
 
     # Define file paths based on dataset
-    base_dir = "dissimilarity-eigenvector-centrality"
+    base_dir = "dissimilarity-eigenvector-centrality-dominating-set"
     centrality_file = os.path.join(base_dir, f"{args.dataset}_dissimilar_eigen-centrality.npy")
     sortedcol_file = os.path.join(base_dir, f"{args.dataset}_dissimilar_eigen_sorted-col-index.npy")
     dom_set_file = os.path.join(base_dir, f"{args.dataset}_eigen_dominating_set.npy")
@@ -277,17 +277,17 @@ if __name__ == "__main__":
 
     G = dataset[0]
     
-    if args.dataset.startswith('ogbn') or args.dataset.startswith('igb'):
-        # OGBN and IGB datasets have their own splits
-        train_idx_split = dataset.train_idx if hasattr(dataset, 'train_idx') else G.ndata['train_mask'].nonzero().squeeze()
-        val_idx_split = dataset.val_idx if hasattr(dataset, 'val_idx') else G.ndata['val_mask'].nonzero().squeeze()
-        test_idx_split = dataset.test_idx if hasattr(dataset, 'test_idx') else G.ndata['test_mask'].nonzero().squeeze()
-        G.ndata['train_mask'] = torch.zeros(G.num_nodes(), dtype=torch.bool)
-        G.ndata['val_mask'] = torch.zeros(G.num_nodes(), dtype=torch.bool)
-        G.ndata['test_mask'] = torch.zeros(G.num_nodes(), dtype=torch.bool)
-        G.ndata['train_mask'][train_idx_split] = True
-        G.ndata['val_mask'][val_idx_split] = True
-        G.ndata['test_mask'][test_idx_split] = True
+    # if args.dataset.startswith('ogbn') or args.dataset.startswith('igb'):
+    #     # OGBN and IGB datasets have their own splits
+    #     train_idx_split = dataset.train_idx if hasattr(dataset, 'train_idx') else G.ndata['train_mask'].nonzero().squeeze()
+    #     val_idx_split = dataset.val_idx if hasattr(dataset, 'val_idx') else G.ndata['val_mask'].nonzero().squeeze()
+    #     test_idx_split = dataset.test_idx if hasattr(dataset, 'test_idx') else G.ndata['test_mask'].nonzero().squeeze()
+    #     G.ndata['train_mask'] = torch.zeros(G.num_nodes(), dtype=torch.bool)
+    #     G.ndata['val_mask'] = torch.zeros(G.num_nodes(), dtype=torch.bool)
+    #     G.ndata['test_mask'] = torch.zeros(G.num_nodes(), dtype=torch.bool)
+    #     G.ndata['train_mask'][train_idx_split] = True
+    #     G.ndata['val_mask'][val_idx_split] = True
+    #     G.ndata['test_mask'][test_idx_split] = True
     
     test_mask = G.ndata['test_mask']
     test_idx = torch.nonzero(test_mask).squeeze()
