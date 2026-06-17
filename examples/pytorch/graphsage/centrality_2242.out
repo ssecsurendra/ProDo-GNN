@@ -1,0 +1,126 @@
+
+last_spmm_time: 289.212341 , last_cuda_sampling_time: 10.473960
+Epoch 00099 | Loss 0.2114 | Accuracy 0.9217 | Time : 15.4699 | Loop_Time : 2.5889 | Model_Time : 12.8802 | x_y_time : 0.0087 | pred_time : 5.5689 | backward_time : 5.5694 | optim_time : 0.5313 
+Sampling time: 253.8957, Model training time: 1283.2221, Total time 1537.1943
+Test Accuracy 0.9217
+Data copied successfully!
+
+last_spmm_time: 230.612961 , last_cuda_sampling_time: 8.243285
+Epoch 00099 | Loss 0.2076 | Accuracy 0.9234 | Time : 10.0430 | Loop_Time : 1.3809 | Model_Time : 8.6617 | x_y_time : 0.0038 | pred_time : 3.8537 | backward_time : 3.6998 | optim_time : 0.2398 
+Sampling time: 138.0875, Model training time: 863.6741, Total time 1001.8013
+Test Accuracy 0.9236
+Data copied successfully!
+
+last_spmm_time: 173.878326 , last_cuda_sampling_time: 6.292069
+Epoch 00099 | Loss 0.2067 | Accuracy 0.9215 | Time : 6.6817 | Loop_Time : 0.8234 | Model_Time : 5.8581 | x_y_time : 0.0018 | pred_time : 2.6820 | backward_time : 2.5215 | optim_time : 0.1092 
+Sampling time: 82.8541, Model training time: 586.3925, Total time 669.2679
+Test Accuracy 0.9215
+Data copied successfully!
+
+last_spmm_time: 123.796356 , last_cuda_sampling_time: 4.627917
+Epoch 00099 | Loss 0.2059 | Accuracy 0.9232 | Time : 4.4265 | Loop_Time : 0.4909 | Model_Time : 3.9354 | x_y_time : 0.0009 | pred_time : 1.8260 | backward_time : 1.7399 | optim_time : 0.0533 
+Sampling time: 49.0363, Model training time: 392.2654, Total time 441.3145
+Test Accuracy 0.9233
+Data copied successfully!
+
+last_spmm_time: 83.324654 , last_cuda_sampling_time: 3.236497
+Epoch 00099 | Loss 0.2062 | Accuracy 0.9221 | Time : 2.8627 | Loop_Time : 0.3194 | Model_Time : 2.5432 | x_y_time : 0.0004 | pred_time : 1.2018 | backward_time : 1.1396 | optim_time : 0.0280 
+Sampling time: 31.9151, Model training time: 255.1176, Total time 287.0417
+Test Accuracy 0.9221
+Data copied successfully!
+
+last_spmm_time: 54.363014 , last_cuda_sampling_time: 2.199626
+Epoch 00099 | Loss 0.2087 | Accuracy 0.9214 | Time : 1.8413 | Loop_Time : 0.1978 | Model_Time : 1.6435 | x_y_time : 0.0002 | pred_time : 0.7752 | backward_time : 0.7587 | optim_time : 0.0145 
+Sampling time: 19.8654, Model training time: 165.0118, Total time 184.8838
+Test Accuracy 0.9214
+Data copied successfully!
+
+last_spmm_time: 34.371696 , last_cuda_sampling_time: 1.464358
+Epoch 00099 | Loss 0.2118 | Accuracy 0.9224 | Time : 1.1803 | Loop_Time : 0.1260 | Model_Time : 1.0542 | x_y_time : 0.0001 | pred_time : 0.4907 | backward_time : 0.5042 | optim_time : 0.0079 
+Sampling time: 12.6555, Model training time: 106.0810, Total time 118.7423
+Test Accuracy 0.9225
+Data copied successfully!
+
+last_spmm_time: 190.779953 , last_cuda_sampling_time: 7.944706
+Epoch 00099 | Loss 0.2136 | Accuracy 0.9190 | Time : 12.6458 | Loop_Time : 2.4250 | Model_Time : 10.2200 | x_y_time : 0.0093 | pred_time : 4.2651 | backward_time : 4.6221 | optim_time : 0.5534 
+Sampling time: 241.4763, Model training time: 1015.7421, Total time 1257.3015
+Test Accuracy 0.9190
+Data copied successfully!
+
+last_spmm_time: 156.961456 , last_cuda_sampling_time: 6.354674
+Epoch 00099 | Loss 0.2075 | Accuracy 0.9231 | Time : 8.1732 | Loop_Time : 1.2713 | Model_Time : 6.9015 | x_y_time : 0.0040 | pred_time : 2.9969 | backward_time : 3.0173 | optim_time : 0.2458 
+Sampling time: 128.2499, Model training time: 687.6355, Total time 815.9275
+Test Accuracy 0.9232
+Data copied successfully!
+
+last_spmm_time: 123.094528 , last_cuda_sampling_time: 4.988277
+Epoch 00099 | Loss 0.2065 | Accuracy 0.9223 | Time : 5.4181 | Loop_Time : 0.7021 | Model_Time : 4.7158 | x_y_time : 0.0019 | pred_time : 2.1295 | backward_time : 2.0274 | optim_time : 0.1148 
+Sampling time: 70.8603, Model training time: 472.3401, Total time 543.2221
+Test Accuracy 0.9223
+Data copied successfully!
+
+last_spmm_time: 91.692581 , last_cuda_sampling_time: 3.771171
+Epoch 00099 | Loss 0.2065 | Accuracy 0.9231 | Time : 3.6835 | Loop_Time : 0.4310 | Model_Time : 3.2524 | x_y_time : 0.0009 | pred_time : 1.4925 | backward_time : 1.4313 | optim_time : 0.0542 
+Sampling time: 43.2110, Model training time: 325.7391, Total time 368.9634
+Test Accuracy 0.9231
+Data copied successfully!
+
+last_spmm_time: 64.740669 , last_cuda_sampling_time: 2.769546
+Epoch 00099 | Loss 0.2062 | Accuracy 0.9230 | Time : 2.4588 | Loop_Time : 0.2631 | Model_Time : 2.1956 | x_y_time : 0.0004 | pred_time : 1.0199 | backward_time : 0.9905 | optim_time : 0.0274 
+Sampling time: 26.5636, Model training time: 220.1102, Total time 246.6824
+Test Accuracy 0.9231
+Data copied successfully!
+
+last_spmm_time: 43.951794 , last_cuda_sampling_time: 1.958741
+Epoch 00099 | Loss 0.2096 | Accuracy 0.9226 | Time : 1.6258 | Loop_Time : 0.1807 | Model_Time : 1.4449 | x_y_time : 0.0002 | pred_time : 0.6788 | backward_time : 0.6625 | optim_time : 0.0145 
+Sampling time: 17.9573, Model training time: 145.2952, Total time 163.2591
+Test Accuracy 0.9227
+Data copied successfully!
+
+last_spmm_time: 28.690975 , last_cuda_sampling_time: 1.338213
+Epoch 00099 | Loss 0.2118 | Accuracy 0.9210 | Time : 1.0676 | Loop_Time : 0.1149 | Model_Time : 0.9526 | x_y_time : 0.0001 | pred_time : 0.4419 | backward_time : 0.4536 | optim_time : 0.0077 
+Sampling time: 11.5106, Model training time: 95.9040, Total time 107.4202
+Test Accuracy 0.9211
+Data copied successfully!
+
+last_spmm_time: 101.660896 , last_cuda_sampling_time: 5.686457
+Epoch 00099 | Loss 0.2127 | Accuracy 0.9211 | Time : 10.6807 | Loop_Time : 2.7704 | Model_Time : 7.9092 | x_y_time : 0.0112 | pred_time : 3.1923 | backward_time : 3.8436 | optim_time : 0.6666 
+Sampling time: 273.3906, Model training time: 785.1509, Total time 1058.6463
+Test Accuracy 0.9213
+Data copied successfully!
+
+last_spmm_time: 85.379196 , last_cuda_sampling_time: 4.286409
+Epoch 00099 | Loss 0.2080 | Accuracy 0.9211 | Time : 6.2012 | Loop_Time : 1.2578 | Model_Time : 4.9429 | x_y_time : 0.0048 | pred_time : 2.0583 | backward_time : 2.2944 | optim_time : 0.2928 
+Sampling time: 121.8654, Model training time: 488.9700, Total time 610.8815
+Test Accuracy 0.9211
+Data copied successfully!
+
+last_spmm_time: 70.317863 , last_cuda_sampling_time: 3.476135
+Epoch 00099 | Loss 0.2070 | Accuracy 0.9236 | Time : 4.0225 | Loop_Time : 0.6802 | Model_Time : 3.3420 | x_y_time : 0.0022 | pred_time : 1.4653 | backward_time : 1.4834 | optim_time : 0.1399 
+Sampling time: 63.6999, Model training time: 332.5906, Total time 396.3135
+Test Accuracy 0.9238
+Data copied successfully!
+
+last_spmm_time: 55.469723 , last_cuda_sampling_time: 2.745474
+Epoch 00099 | Loss 0.2063 | Accuracy 0.9221 | Time : 2.7231 | Loop_Time : 0.3500 | Model_Time : 2.3730 | x_y_time : 0.0010 | pred_time : 1.0663 | backward_time : 1.0549 | optim_time : 0.0586 
+Sampling time: 35.5140, Model training time: 237.9374, Total time 273.4653
+Test Accuracy 0.9222
+Data copied successfully!
+
+last_spmm_time: 41.760330 , last_cuda_sampling_time: 2.113608
+Epoch 00099 | Loss 0.2067 | Accuracy 0.9230 | Time : 1.8898 | Loop_Time : 0.2171 | Model_Time : 1.6726 | x_y_time : 0.0004 | pred_time : 0.7645 | backward_time : 0.7560 | optim_time : 0.0273 
+Sampling time: 21.5719, Model training time: 167.8106, Total time 189.3913
+Test Accuracy 0.9232
+Data copied successfully!
+
+last_spmm_time: 30.201418 , last_cuda_sampling_time: 1.591262
+Epoch 00099 | Loss 0.2101 | Accuracy 0.9221 | Time : 1.2922 | Loop_Time : 0.1400 | Model_Time : 1.1521 | x_y_time : 0.0002 | pred_time : 0.5382 | backward_time : 0.5241 | optim_time : 0.0140 
+Sampling time: 14.0037, Model training time: 116.4021, Total time 130.4127
+Test Accuracy 0.9222
+Data copied successfully!
+
+last_spmm_time: 20.893728 , last_cuda_sampling_time: 1.142573
+Epoch 00099 | Loss 0.2131 | Accuracy 0.9209 | Time : 0.8891 | Loop_Time : 0.0942 | Model_Time : 0.7949 | x_y_time : 0.0001 | pred_time : 0.3659 | backward_time : 0.3776 | optim_time : 0.0069 
+Sampling time: 9.4288, Model training time: 80.1417, Total time 89.5761
+Test Accuracy 0.9211
+Data copied successfully!

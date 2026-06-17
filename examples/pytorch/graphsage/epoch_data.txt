@@ -1,4 +1,4 @@
-Layer_1 3752 | Layer_2 10200 | Layer_3 18874
-Epoch 00000 | Loss 2.7859 | Accuracy 0.4653 | Time : 151.8391 | Loop_Time : 148.6901 | Model_Time : 3.1488 | x_y_time : 0.0025 | pred_time : 2.3717 | backward_time : 0.5836 | optim_time : 0.1731 
-Sampling time: 148.6901, Model training time: 3.1488, Total time 151.8391
-Test Accuracy 0.3961
+Layer_1 5702 | Layer_2 19936 | Layer_3 42011
+Epoch 00000 | Loss 2.6133 | Accuracy 0.4973 | Time : 15.2200 | Loop_Time : 2.5093 | Model_Time : 12.7093 | x_y_time : 0.0243 | pred_time : 10.6658 | backward_time : 1.3653 | optim_time : 0.5746 
+Sampling time: 2.5093, Model training time: 12.7093, Total time 15.2200
+Test Accuracy 0.4151

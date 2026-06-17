@@ -25,12 +25,12 @@ for fanout in "${fanouts[@]}"; do
     #   output=$(python3 node_classification1.py --dataset=$1 --batch_size=$batch_size --mode=puregpu --fanout=$fanout,$fanout,$fanout --epoch=$2 --method=$3)
     # fi
     # output=$(python3 node_classification_dissimilarity_cosine_eigenvector_centrality_yelp.py --dataset=$1 --batch_size=$batch_size --mode=puregpu --fanout=$fanout,$fanout,$fanout --epoch=$2)
-    output=$(python3 node_classification_dissimilarity_cosine_eigenvector_centrality_dominating_set_maintained_train_nodes_original1.py --dataset=$1 --batch_size=$batch_size --mode=puregpu --fanout=$fanout,$fanout,$fanout --epoch=$2)
+    output=$(python3 node_classification_DGL.py --dataset=$1 --batch_size=$batch_size --mode=puregpu --fanout=$fanout,$fanout,$fanout --epoch=$2)
     #output=$(python3 node_classification1.py --dataset=$1 --batch_size=$batch_size --mode=puregpu --fanout=$fanout,$fanout,$fanout --epoch=$2)
     #output=$(python3 node_classification1.py --dataset=$1 --batch_size=$batch_size --mode=puregpu --fanout=$fanout,$fanout,$fanout --epoch=$2 --method=$3)
     #output=$(python3 node_classification_yelp_surendra.py --dataset=$1 --batch_size=$batch_size --mode=puregpu --fanout=$fanout,$fanout,$fanout --epoch=$2 --method=$3)
     #filename="SPMM_time_surendra/$1_F${fanout}_B${batch_size}_puregpu_$2.txt"
-    filename="time_centrality/$1_F${fanout}_B${batch_size}_puregpu_E$2.txt"
+    filename="time_centrality/DGL/$1_F${fanout}_B${batch_size}_puregpu_E$2.txt"
     #filename="epoch1_time_surendra/$1_F${fanout}_B${batch_size}_puregpu_$2.txt"
     #echo "Dataset = $1" > $filename
     echo "Dataset = $1, batch_size = $batch_size" > $filename

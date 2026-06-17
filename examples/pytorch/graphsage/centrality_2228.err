@@ -1,0 +1,504 @@
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined
+Traceback (most recent call last):
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 735, in <module>
+    epoch_lines = train(args, device, g,
+  File "node_classification_complete_training_nodes_ProDo-GNN_sampling.py", line 237, in train
+    final_train_idx,
+NameError: name 'final_train_idx' is not defined

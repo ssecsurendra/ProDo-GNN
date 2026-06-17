@@ -113,7 +113,8 @@ __global__ void _CSRRowWiseSampleDegreeReplaceKernel(
  * @param out_cols The columns of the output COO (output).
  * @param out_idxs The data array of the output COO (output).
  */
-//version-3
+//ProDo-GNN
+/*
 template <typename IdType, int TILE_SIZE>
 __global__ void _CSRRowWiseSampleUniformKernel(
     const uint64_t rand_seed, const int64_t num_picks, const int64_t num_rows,
@@ -136,6 +137,7 @@ __global__ void _CSRRowWiseSampleUniformKernel(
     const int64_t in_row_start = in_ptr[row];
     const int64_t deg = in_ptr[row + 1] - in_row_start;
     const int64_t out_row_start = out_ptr[out_row];
+    //printf("ProDo-GNN Sampler\n");
 
     if (deg <= num_picks) {
       // just copy row when there is not enough nodes to sample.
@@ -158,66 +160,69 @@ __global__ void _CSRRowWiseSampleUniformKernel(
     out_row += 1;
   }
 }
-//version-1
-// template <typename IdType, int TILE_SIZE>
-// __global__ void _CSRRowWiseSampleUniformKernel(
-//     const uint64_t rand_seed, const int64_t num_picks, const int64_t num_rows,
-//     const IdType* const in_rows, const IdType* const in_ptr,
-//     const IdType* const in_index, const IdType* const data,
-//     const IdType* const out_ptr, IdType* const out_rows, IdType* const out_cols,
-//     IdType* const out_idxs) {
-//   // we assign one warp per row
-//   assert(blockDim.x == BLOCK_SIZE);
-//
-//   int64_t out_row = blockIdx.x * TILE_SIZE;
-//   const int64_t last_row =
-//       min(static_cast<int64_t>(blockIdx.x + 1) * TILE_SIZE, num_rows);
-//
-//   curandStatePhilox4_32_10_t rng;
-//   curand_init(rand_seed * gridDim.x + blockIdx.x, threadIdx.x, 0, &rng);
-//
-//   while (out_row < last_row) {
-//     const int64_t row = in_rows[out_row];
-//     const int64_t in_row_start = in_ptr[row];
-//     const int64_t deg = in_ptr[row + 1] - in_row_start;
-//     const int64_t out_row_start = out_ptr[out_row];
-//
-//     if (deg <= num_picks) {
-//       // just copy row when there is not enough nodes to sample.
-//       for (int idx = threadIdx.x; idx < deg; idx += BLOCK_SIZE) {
-//         const IdType in_idx = in_row_start + idx;
-//         out_rows[out_row_start + idx] = row;
-//         out_cols[out_row_start + idx] = in_index[in_idx];
-//         out_idxs[out_row_start + idx] = data ? data[in_idx] : in_idx;
-//       }
-//     } else {
-//       // generate permutation list via reservoir algorithm
-//       for (int idx = threadIdx.x; idx < num_picks; idx += BLOCK_SIZE) {
-//         out_idxs[out_row_start + idx] = idx;
-//       }
-//       __syncthreads();
-//
-//       for (int idx = num_picks + threadIdx.x; idx < deg; idx += BLOCK_SIZE) {
-//         const int num = curand(&rng) % (idx + 1);
-//         if (num < num_picks) {
-//           // use max so as to achieve the replacement order the serial
-//           // algorithm would have
-//           AtomicMax(out_idxs + out_row_start + num, idx);
-//         }
-//       }
-//       __syncthreads();
-//
-//       // copy permutation over
-//       for (int idx = threadIdx.x; idx < num_picks; idx += BLOCK_SIZE) {
-//         const IdType perm_idx = out_idxs[out_row_start + idx] + in_row_start;
-//         out_rows[out_row_start + idx] = row;
-//         out_cols[out_row_start + idx] = in_index[perm_idx];
-//         out_idxs[out_row_start + idx] = data ? data[perm_idx] : perm_idx;
-//       }
-//     }
-//     out_row += 1;
-//   }
-// }
+*/
+//DGL
+
+template <typename IdType, int TILE_SIZE>
+__global__ void _CSRRowWiseSampleUniformKernel(
+    const uint64_t rand_seed, const int64_t num_picks, const int64_t num_rows,
+    const IdType* const in_rows, const IdType* const in_ptr,
+    const IdType* const in_index, const IdType* const data,
+    const IdType* const out_ptr, IdType* const out_rows, IdType* const out_cols,
+    IdType* const out_idxs) {
+  // we assign one warp per row
+  assert(blockDim.x == BLOCK_SIZE);
+
+  int64_t out_row = blockIdx.x * TILE_SIZE;
+  const int64_t last_row =
+      min(static_cast<int64_t>(blockIdx.x + 1) * TILE_SIZE, num_rows);
+
+  curandStatePhilox4_32_10_t rng;
+  curand_init(rand_seed * gridDim.x + blockIdx.x, threadIdx.x, 0, &rng);
+
+  while (out_row < last_row) {
+    const int64_t row = in_rows[out_row];
+    const int64_t in_row_start = in_ptr[row];
+    const int64_t deg = in_ptr[row + 1] - in_row_start;
+    const int64_t out_row_start = out_ptr[out_row];
+    //printf("DGL Sampler\n");
+
+    if (deg <= num_picks) {
+      // just copy row when there is not enough nodes to sample.
+      for (int idx = threadIdx.x; idx < deg; idx += BLOCK_SIZE) {
+        const IdType in_idx = in_row_start + idx;
+        out_rows[out_row_start + idx] = row;
+        out_cols[out_row_start + idx] = in_index[in_idx];
+        out_idxs[out_row_start + idx] = data ? data[in_idx] : in_idx;
+      }
+    } else {
+      // generate permutation list via reservoir algorithm
+      for (int idx = threadIdx.x; idx < num_picks; idx += BLOCK_SIZE) {
+        out_idxs[out_row_start + idx] = idx;
+      }
+      __syncthreads();
+
+      for (int idx = num_picks + threadIdx.x; idx < deg; idx += BLOCK_SIZE) {
+        const int num = curand(&rng) % (idx + 1);
+        if (num < num_picks) {
+          // use max so as to achieve the replacement order the serial
+          // algorithm would have
+          AtomicMax(out_idxs + out_row_start + num, idx);
+        }
+      }
+      __syncthreads();
+
+      // copy permutation over
+      for (int idx = threadIdx.x; idx < num_picks; idx += BLOCK_SIZE) {
+        const IdType perm_idx = out_idxs[out_row_start + idx] + in_row_start;
+        out_rows[out_row_start + idx] = row;
+        out_cols[out_row_start + idx] = in_index[perm_idx];
+        out_idxs[out_row_start + idx] = data ? data[perm_idx] : perm_idx;
+      }
+    }
+    out_row += 1;
+  }
+}
 
 /**
  * @brief Perform row-wise uniform sampling on a CSR matrix,
