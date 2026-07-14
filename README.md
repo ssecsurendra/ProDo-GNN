@@ -1,4 +1,4 @@
-# ProDo-GNN: Centrality-Driven Training for Fast GNN
+# ProDo-GNN: Centrality-Driven Training for High-Performance GNN
 
 ## Overview
 
